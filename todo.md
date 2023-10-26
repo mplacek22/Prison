@@ -1,8 +1,8 @@
 Maja:
-* uzytkownik
-* lekarz
+* uzytkownik - done
+* lekarz - done
 * wiezien
-* admin 
+* admin - done
 * osoba kontaktowa
 
 Kuba:

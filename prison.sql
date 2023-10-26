@@ -89,7 +89,7 @@ CREATE TABLE public."Guard" (
 
 CREATE TABLE public."User" (
 	"Username" varchar(30) NOT NULL,
-	"Password" int4 NOT NULL,
+	"Password" varchar(30) NOT NULL,
 	"IdEmployee" int4 NULL,
 	"IdGuard" int4 NULL,
 	"IdDoctor" int4 NULL,

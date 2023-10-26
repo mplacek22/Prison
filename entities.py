@@ -88,7 +88,7 @@ class Guard(db.Entity):
 class User(db.Entity):
     _table_ = "User"
     username = PrimaryKey(str, column="Username")
-    password = Required(int, column="Password")
+    password = Required(str, column="Password")
     id_employee = Optional(AdministrativeEmployee, column="IdEmployee", reverse="users")
     id_guard = Optional(Guard, column="IdGuard", reverse="users")
     id_doctor = Optional(Doctor, column="IdDoctor", reverse="users")

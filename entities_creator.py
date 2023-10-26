@@ -1,11 +1,71 @@
-import random
 from datetime import date, timedelta
-
-from faker import Faker
-
+import random
+from faker import *
+from random_pesel import RandomPESEL
 from entities import *
 
 fake = Faker()
+pesel = RandomPESEL()
+
+
+@db_session
+def create_administrative_employees(num_admins):
+    if count(Prison) == 0:
+        raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
+
+    start_id = count(AdministrativeEmployee) + 1
+    prisons = select(p for p in Prison)
+
+    for i in range(start_id, start_id + num_admins):
+        admin_data = {
+            'id_employee': i,
+            'pesel': str(pesel.generate_pesel()),
+            'name': fake.first_name(),
+            'surname': fake.last_name(),
+            'id_prison': random.choice(prisons)
+        }
+        AdministrativeEmployee(**admin_data)
+
+
+@db_session
+def create_doctors(num_doctors):
+    specializations = [
+        "Cardiologist",
+        "Pediatrician",
+        "Neurologist",
+        "Dermatologist",
+        "Orthopedic Surgeon",
+        "Gynecologist",
+        "Gastroenterologist",
+        "Radiologist",
+        "Ophthalmologist",
+        "Urologist",
+        "Oncologist",
+        "Pulmonologist",
+        "Endocrinologist",
+        "Nephrologist",
+        "Rheumatologist",
+        "Psychiatrist",
+        "Anesthesiologist",
+        "General Surgeon",
+        "Infectious Disease Specialist",
+        "Hematologist"
+    ]
+    start_id = count(d for d in Doctor) + 1
+    for i in range(start_id, start_id + num_doctors):
+        Doctor(id_doctor=i, pesel=str(pesel.generate()), name=fake.first_name(), surname=fake.last_name(),
+               specialization=random.choice(specializations))
+
+
+@db_session
+def create_users():
+    for admin in AdministrativeEmployee.select():
+        User(username=fake.unique.username(), password=fake.password(length=random.randint(8, 30)),
+             id_employee=admin.id_employee)
+    for guard in Guard.select():
+        User(username=fake.unique.username(), password=fake.password(), id_guard=guard.id_guard)
+    for doctor in Doctor.select():
+        User(username=fake.unique.user_name(), password=fake.password(), id_doctor=doctor.id_doctor)
 
 
 @db_session
