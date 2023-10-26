@@ -187,7 +187,7 @@ CREATE TABLE public."Sentence" (
 -- public."Visit" definition
 
 CREATE TABLE public."Visit" (
-	"IdPass" int4 NOT NULL,
+	"IdVisit" int4 NOT NULL,
 	"IdPrisoner" int4 NOT NULL,
 	"StartDate" timestamp NOT NULL,
 	"EndDate" timestamp NOT NULL CHECK("EndDate" > "StartDate"),

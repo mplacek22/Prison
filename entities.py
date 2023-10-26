@@ -121,16 +121,16 @@ class Duty(db.Entity):
     id_duty = PrimaryKey(int, column="IdDuty")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")  # , check=lambda val: val > start_date)
-    id_block = Required(Block, column="IdBlock")
+    block = Required(Block, column="IdBlock")
     guards = Set("GuardDuty")
 
 
 # Define the "GuardDuty" entity
 class GuardDuty(db.Entity):
     _table_ = "GuardDuty"
-    id_duty = Required(Duty, column="IdDuty")
-    id_guard = Required(Guard, column="IdGuard")
-    PrimaryKey(id_duty, id_guard)
+    duty = Required(Duty, column="IdDuty")
+    guard = Required(Guard, column="IdGuard")
+    PrimaryKey(duty, guard)
 #
 # # Define the blood group enum
 # class BloodGroupEnum(db.Entity):
@@ -168,14 +168,14 @@ class Sentence(db.Entity):
     article = Required(str, column="Article")
     paragraph = Required(int, column="Paragraph")
     stay_duration_days = Required(int, column="StayDurationDays")
-    id_prisoner = Required(Prisoner, column="IdPrisoner")
+    prisoner = Required(Prisoner, column="IdPrisoner")
 
 
 # Define the "Visit" entity
 class Visit(db.Entity):
     _table_ = "Visit"
-    id_pass = PrimaryKey(int, column="IdPass")
-    id_prisoner = Required(Prisoner, column="IdPrisoner")
+    id_visit = PrimaryKey(int, column="IdVisit")
+    prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")
     name = Required(str, column="Name")
@@ -186,8 +186,8 @@ class Visit(db.Entity):
 class Examination(db.Entity):
     _table_ = "Examination"
     id_examination = PrimaryKey(int, column="IdExamination")
-    id_doctor = Required(Doctor, column="IdDoctor")
-    id_prisoner = Required(Prisoner, column="IdPrisoner")
+    doctor = Required(Doctor, column="IdDoctor")
+    prisoner = Required(Prisoner, column="IdPrisoner")
     examination_type = Required(str, column="ExaminationType")
     examination_date = Required(datetime, column="ExaminationDate")
     examination_result = Required(str, column="ExaminationResult")
@@ -197,7 +197,7 @@ class Examination(db.Entity):
 class Furlough(db.Entity):
     _table_ = "Furlough"
     id_furlough = PrimaryKey(int, column="IdFurlough")
-    id_prisoner = Required(Prisoner, column="IdPrisoner")
+    prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")
 
