@@ -57,7 +57,7 @@ class AdministrativeEmployee(db.Entity):
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
     id_penitentiary = Required(Prison, column="IdPenitentiary")
-    user = Set("User")
+    users = Set("User")
 
 
 # Define the "Building" entity
@@ -80,7 +80,7 @@ class Guard(db.Entity):
     surname = Required(str, column="Surname")
     rank = Optional(str, column="Rank")
     id_penitentiary = Required(Prison, column="IdPenitentiary")
-    user = Set("User")
+    users = Set("User")
     duties = Set("GuardDuty")
 
 

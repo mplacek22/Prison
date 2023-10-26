@@ -193,7 +193,7 @@ CREATE TABLE public."Visit" (
 	"EndDate" timestamp NOT NULL CHECK("EndDate" > "StartDate"),
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
-	CONSTRAINT "Visit_pkey" PRIMARY KEY ("IdPass"),
+	CONSTRAINT "Visit_pkey" PRIMARY KEY ("IdVisit"),
 	CONSTRAINT "FK_Visit.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner")
 );
 
