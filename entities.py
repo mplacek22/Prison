@@ -9,7 +9,7 @@ class CellType(db.Entity):
     _table_ = "CellType"
     id_cell_type = PrimaryKey(int, column="IdCellType")
     cell_type = Required(str, column="CellType")
-    cells = Set('Cell')
+    cells = Set("Cell")
 
 
 # Define the "ContactPerson" entity
@@ -20,7 +20,7 @@ class ContactPerson(db.Entity):
     surname = Required(str, column="Surname")
     kinship = Optional(str, column="Kinship")
     phone_nr = Optional(str, column="PhoneNr")
-    prisoners = Set('Prisoner')
+    prisoners = Set("Prisoner")
 
 
 # Define the "Doctor" entity
@@ -31,8 +31,8 @@ class Doctor(db.Entity):
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
     specialization = Required(str, column="Specialization")
-    examinations = Set('Examination')
-    user = Set('User')
+    users = Set("User")
+    examinations = Set("Examination")
 
 
 # Define the "Prison" entity
@@ -44,9 +44,9 @@ class Prison(db.Entity):
     street = Required(str, column="Street")
     building_nr = Required(str, column="BuildingNr")
     apartment_nr = Optional(str, column="ApartmentNr")
-    employees = Set('AdministrativeEmployee')
-    guards = Set('Guard')
-    buildings = Set('Building')
+    administrative_employees = Set("AdministrativeEmployee")
+    buildings = Set("Building")
+    guards = Set("Guard")
 
 
 # Define the "AdministrativeEmployee" entity
@@ -57,7 +57,7 @@ class AdministrativeEmployee(db.Entity):
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
     id_penitentiary = Required(Prison, column="IdPenitentiary")
-    user = Set('User')
+    user = Set("User")
 
 
 # Define the "Building" entity
@@ -68,7 +68,7 @@ class Building(db.Entity):
     street = Required(str, column="Street")
     building_nr = Required(str, column="BuildingNr")
     id_penitentiary = Required(Prison, column="IdPenitentiary")
-    blocks = Set('Block')
+    blocks = Set("Block")
 
 
 # Define the "Guard" entity
@@ -80,8 +80,8 @@ class Guard(db.Entity):
     surname = Required(str, column="Surname")
     rank = Optional(str, column="Rank")
     id_penitentiary = Required(Prison, column="IdPenitentiary")
-    user = Set('User')
-    duties = Set('GuardDuty')
+    user = Set("User")
+    duties = Set("GuardDuty")
 
 
 # Define the "User" entity
@@ -89,10 +89,9 @@ class User(db.Entity):
     _table_ = "User"
     username = PrimaryKey(str, column="Username")
     password = Required(int, column="Password")
-    id_employee = Optional(AdministrativeEmployee, column="IdEmployee")
-    id_guard = Optional(Guard, column="IdGuard")
-    id_doctor = Optional(Doctor, column="IdDoctor")
-    # check(lambda: (id_doctor is not None) + (id_guard is not None) + (id_employee is not None) == 1)
+    id_employee = Optional(AdministrativeEmployee, column="IdEmployee", reverse="users")
+    id_guard = Optional(Guard, column="IdGuard", reverse="users")
+    id_doctor = Optional(Doctor, column="IdDoctor", reverse="users")
 
 
 # Define the "Block" entity
@@ -101,8 +100,8 @@ class Block(db.Entity):
     id_block = PrimaryKey(int, column="IdBlok")
     block_name = Required(str, column="BlockName")
     id_building = Required(Building, column="IdBuilding")
-    cells = Set('Cell')
-    duties = Set('Duty')
+    cells = Set("Cell")
+    duties = Set("Duty")
 
 
 # Define the "Cell" entity
@@ -113,7 +112,7 @@ class Cell(db.Entity):
     id_cell_type = Required(CellType, column="IdCellType")
     cell_capacity = Required(int, column="CellCapacity")
     id_block = Required(Block, column="IdBlock")
-    prisoners = Set('Prisoner')
+    prisoners = Set("Prisoner")
 
 
 # Define the "Duty" entity
@@ -123,7 +122,7 @@ class Duty(db.Entity):
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")  # , check=lambda val: val > start_date)
     id_block = Required(Block, column="IdBlock")
-    guards = Set('GuardDuty')
+    guards = Set("GuardDuty")
 
 
 # Define the "GuardDuty" entity
@@ -156,10 +155,10 @@ class Prisoner(db.Entity):
     height = Optional(float, column="Height")
     blood_group = Optional(str, column="BloodGroup")
     sex = Required(str, column="Sex")
-    sentences = Set('Sentence')
-    visits = Set('Visit')
-    examinations = Set('Examination')
-    furloughs = Set('Furlough')
+    sentences = Set("Sentence")
+    visits = Set("Visit")
+    examinations = Set("Examination")
+    furloughs = Set("Furlough")
 
 
 # Define the "Sentence" entity
@@ -178,7 +177,7 @@ class Visit(db.Entity):
     id_pass = PrimaryKey(int, column="IdPass")
     id_prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
-    end_date = Required(datetime, column="EndDate")  # , check=lambda val: val > start_date)
+    end_date = Required(datetime, column="EndDate")
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
 
