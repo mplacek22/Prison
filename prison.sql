@@ -40,7 +40,7 @@ CREATE TABLE public."Prison" (
 	"City" varchar(30) NOT NULL,
 	"Street" varchar(30) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
-	"ApartmentNr" varchar(5) NOT NULL,
+	"ApartmentNr" varchar(5) NULL,
 	CONSTRAINT "Prison_pkey" PRIMARY KEY ("IdPenitentiary")
 );
 
