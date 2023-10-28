@@ -1,9 +1,9 @@
 Maja:
 * uzytkownik - done
 * lekarz - done
-* wiezien
+* wiezien - done
 * admin - done
-* osoba kontaktowa
+* osoba kontaktowa - done
 
 Kuba:
 * wyrok
@@ -14,9 +14,9 @@ Kuba:
 * badanie
 
 Iza:
-* wiezienie
-* cela 
+* wiezienie - done
+* cela - done
 * blok
-* budynek
+* budynek - done
 * straznik - done
 * typy celi
