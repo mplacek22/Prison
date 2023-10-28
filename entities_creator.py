@@ -19,7 +19,7 @@ def create_administrative_employees(num_admins):
     for i in range(start_id, start_id + num_admins):
         admin_data = {
             'id_employee': i,
-            'pesel': str(pesel.generate_pesel()),
+            'pesel': str(pesel.generate()),
             'name': fake.first_name(),
             'surname': fake.last_name(),
             'id_prison': random.choice(prisons)
@@ -202,37 +202,62 @@ def create_examinations():
     doctors = Doctor.select()
 
     if len(prisoners) == 0:
-        print("No prisoners in database")
+        print("No prisoners in database.")
         return
 
     examination_id = 0
     examinations_count = int(len(prisoners) * 5)
 
+    # examinations = [
+    #     ("MAsa ciała", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
+    #     ("Temperatura ciała", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
+    #     ("Poziom cukru we krwi", lambda: str(round(random.uniform(70, 120), 1))),
+    #     ("Ciśnienie krwi", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
+    #     ("Poziom cholesterolu", lambda: random.choice(["Wynik prawidłowy", "Podwyższony", "Zbyt niski"])),
+    #     ("Wynik morfologii krwi", lambda: random.choice(["Normalny", "Anemia", "Leukocytoza"])),
+    #     ("Poziom wapnia we krwi", lambda: str(round(random.uniform(8.0, 10.5), 2))),
+    #     ("Poziom potasu we krwi", lambda: str(round(random.uniform(3.5, 5.5), 2))),
+    #     ("Poziom sodu we krwi", lambda: str(round(random.uniform(135, 145), 2))),
+    #     ("Wynik testu alergii", lambda: random.choice(["Brak alergii", "Alergia na pyłki", "Alergia na orzechy"])),
+    #     ("Poziom witaminy D", lambda: str(round(random.uniform(20, 60), 2))),
+    #     ("Poziom magnezu we krwi", lambda: str(round(random.uniform(1.5, 2.5), 2))),
+    #     ("Poziom cynku we krwi", lambda: str(round(random.uniform(50, 120), 2))),
+    #     ("Wynik prób wątrobowych",
+    #      lambda: random.choice(["Wynik prawidłowy", "Podwyższone", "Podejrzenie uszkodzenia wątroby"])),
+    #     ("Poziom trójglicerydów", lambda: str(round(random.uniform(50, 200), 1))),
+    #     ("Poziom kreatyniny we krwi", lambda: str(round(random.uniform(0.5, 1.5), 2))),
+    #     ("Kolonoskopia", lambda: random.choice(["Wynik negatywny", "Polip wykryty", "Nowotwór wykryty"])),
+    #     ("Mammografia", lambda: random.choice(["Wynik negatywny", "Znaleziono nieprawidłowość"])),
+    #     ("USG jamy brzusznej", lambda: random.choice(["Wynik prawidłowy", "Znaleziono nieprawidłowość"])),
+    #     ("Elektrokardiogram", lambda: random.choice(["Wynik prawidłowy", "Zaburzenia rytmu", "Niedokrwienie serca"])),
+    #     ("Konsultacja okulisty", lambda: random.choice(["Wynik prawidłowy", "Wymagana dalsza konsultacja"])),
+    #     ("Badanie moczu", lambda: random.choice(["Wynik prawidłowy", "Obecność infekcji", "Inne nieprawidłowości"])),
+    #     ("Test COVID-19", lambda: random.choice(["Wynik negatywny", "Wynik pozytywny", "Wymagane dalsze testy"]))
+    # ]
     examinations = [
-        ("MAsa ciała", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
-        ("Temperatura ciała", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
-        ("Poziom cukru we krwi", lambda: str(round(random.uniform(70, 120), 1))),
-        ("Ciśnienie krwi", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
-        ("Poziom cholesterolu", lambda: random.choice(["Wynik prawidłowy", "Podwyższony", "Zbyt niski"])),
-        ("Wynik morfologii krwi", lambda: random.choice(["Normalny", "Anemia", "Leukocytoza"])),
-        ("Poziom wapnia we krwi", lambda: str(round(random.uniform(8.0, 10.5), 2))),
-        ("Poziom potasu we krwi", lambda: str(round(random.uniform(3.5, 5.5), 2))),
-        ("Poziom sodu we krwi", lambda: str(round(random.uniform(135, 145), 2))),
-        ("Wynik testu alergii", lambda: random.choice(["Brak alergii", "Alergia na pyłki", "Alergia na orzechy"])),
-        ("Poziom witaminy D", lambda: str(round(random.uniform(20, 60), 2))),
-        ("Poziom magnezu we krwi", lambda: str(round(random.uniform(1.5, 2.5), 2))),
-        ("Poziom cynku we krwi", lambda: str(round(random.uniform(50, 120), 2))),
-        ("Wynik prób wątrobowych",
-         lambda: random.choice(["Wynik prawidłowy", "Podwyższone", "Podejrzenie uszkodzenia wątroby"])),
-        ("Poziom trójglicerydów", lambda: str(round(random.uniform(50, 200), 1))),
-        ("Poziom kreatyniny we krwi", lambda: str(round(random.uniform(0.5, 1.5), 2))),
-        ("Kolonoskopia", lambda: random.choice(["Wynik negatywny", "Polip wykryty", "Nowotwór wykryty"])),
-        ("Mammografia", lambda: random.choice(["Wynik negatywny", "Znaleziono nieprawidłowość"])),
-        ("USG jamy brzusznej", lambda: random.choice(["Wynik prawidłowy", "Znaleziono nieprawidłowość"])),
-        ("Elektrokardiogram", lambda: random.choice(["Wynik prawidłowy", "Zaburzenia rytmu", "Niedokrwienie serca"])),
-        ("Konsultacja okulisty", lambda: random.choice(["Wynik prawidłowy", "Wymagana dalsza konsultacja"])),
-        ("Badanie moczu", lambda: random.choice(["Wynik prawidłowy", "Obecność infekcji", "Inne nieprawidłowości"])),
-        ("Test COVID-19", lambda: random.choice(["Wynik negatywny", "Wynik pozytywny", "Wymagane dalsze testy"]))
+        ("Body Weight", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
+        ("Body Temperature", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
+        ("Blood Sugar Level", lambda: str(round(random.uniform(70, 120), 1))),
+        ("Blood Pressure", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
+        ("Cholesterol Level", lambda: random.choice(["Normal result", "Elevated", "Too low"])),
+        ("Blood Morphology Result", lambda: random.choice(["Normal", "Anemia", "Leukocytosis"])),
+        ("Calcium Level in Blood", lambda: str(round(random.uniform(8.0, 10.5), 2))),
+        ("Potassium Level in Blood", lambda: str(round(random.uniform(3.5, 5.5), 2))),
+        ("Sodium Level in Blood", lambda: str(round(random.uniform(135, 145), 2))),
+        ("Allergy Test Result", lambda: random.choice(["No allergy", "Pollen allergy", "Nut allergy"])),
+        ("Vitamin D Level", lambda: str(round(random.uniform(20, 60), 2))),
+        ("Magnesium Level in Blood", lambda: str(round(random.uniform(1.5, 2.5), 2))),
+        ("Zinc Level in Blood", lambda: str(round(random.uniform(50, 120), 2))),
+        ("Liver Function Test Result", lambda: random.choice(["Normal result", "Elevated", "Suspected liver damage"])),
+        ("Triglyceride Level", lambda: str(round(random.uniform(50, 200), 1))),
+        ("Creatinine Level in Blood", lambda: str(round(random.uniform(0.5, 1.5), 2))),
+        ("Colonoscopy", lambda: random.choice(["Negative result", "Polyp detected", "Tumor detected"])),
+        ("Mammography", lambda: random.choice(["Negative result", "Abnormality detected"])),
+        ("Abdominal Ultrasound", lambda: random.choice(["Normal result", "Abnormality detected"])),
+        ("Electrocardiogram", lambda: random.choice(["Normal result", "Rhythm disturbances", "Heart ischemia"])),
+        ("Ophthalmologist Consultation", lambda: random.choice(["Normal result", "Further consultation required"])),
+        ("Urine Test", lambda: random.choice(["Normal result", "Presence of infection", "Other abnormalities"])),
+        ("COVID-19 Test", lambda: random.choice(["Negative result", "Positive result", "Further testing required"]))
     ]
 
     for prisoner in random.choices(prisoners, k=examinations_count):
@@ -246,3 +271,27 @@ def create_examinations():
                                   doctor=doctor, examination_type=name, examination_result=result)
 
         examination_id += 1
+
+
+def create_guard(num_guards):
+    prisons = Prison.select()
+    if len(prisons) == 0:
+        raise Exception("No Prisons in the database. Can't create a Guard.")
+
+    start_id = count(Guard) + 1
+    prisons = select(p for p in prisons)
+
+    for i in range(start_id, start_id + num_guards):
+        guard_data = {
+            'id_guard': i,
+            'pesel': str(pesel.generate()),
+            'name': fake.first_name(),
+            'surname': fake.last_name(),
+            'id_prison': random.choice(prisons)
+        }
+
+        # Conditionally add 'rank' attribute with a random value
+        if random.choice([True, False]):
+            guard_data['rank'] = fake.random_int() # nie pamiętam o co chodziło z tym rank
+
+        Guard(**guard_data)

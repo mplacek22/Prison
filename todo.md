@@ -18,5 +18,5 @@ Iza:
 * cela 
 * blok
 * budynek
-* straznik
+* straznik - done
 * typy celi

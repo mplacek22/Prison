@@ -131,6 +131,8 @@ class GuardDuty(db.Entity):
     duty = Required(Duty, column="IdDuty")
     guard = Required(Guard, column="IdGuard")
     PrimaryKey(duty, guard)
+
+
 #
 # # Define the blood group enum
 # class BloodGroupEnum(db.Entity):
@@ -200,4 +202,3 @@ class Furlough(db.Entity):
     prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")
-
