@@ -16,7 +16,7 @@ Kuba:
 Iza:
 * wiezienie - done
 * cela - done
-* blok
+* blok - done
 * budynek - done
 * straznik - done
-* typy celi
+* typy celi - done

@@ -439,3 +439,46 @@ def create_cell(num_cell):
         }
 
         Cell(**cell_data)
+
+
+@db_session
+def create_cell_type():
+    cells = Cell.select()
+    if len(cells) == 0:
+        raise Exception("No Cells in the database. Can't create a Cell type.")
+
+    cell_type = {'1': 'male',
+                 '2': 'female',
+                 '3': 'separate'}
+
+    for cell in cells:
+        cell_type_id, cell_type_name = random.choice(list(cell_type.items()))
+        CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
+
+
+@db_session
+def create_block(num_block):
+    buildings = Building.select()
+    if len(buildings) == 0:
+        raise Exception("No Buildings in the database. Can't create a Block.")
+
+    building_ids = [building.id_building for building in buildings]
+
+    block_names = [
+        'Separated',
+        'Minor',
+        'Min Security',
+        'Max Security',
+        'Mental illnesses',
+        'Community work'
+    ]
+
+    start_id = count(Block) + 1
+    for i in range(start_id, start_id + num_block):
+        block_data = {
+            'id_block': i,
+            'block_name': random.choice(block_names),
+            'id_building': random.choice(building_ids),
+        }
+
+        Block(**block_data)
