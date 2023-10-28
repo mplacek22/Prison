@@ -14,7 +14,7 @@ def create_administrative_employees(num_admins):
         raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
 
     start_id = count(AdministrativeEmployee) + 1
-    prisons = select(p for p in Prison)  # prisons = Prison.select() - nie lepiej?
+    prisons = select(p for p in Prison)
 
     for i in range(start_id, start_id + num_admins):
         admin_data = {
@@ -279,8 +279,8 @@ def create_guard(num_guards):
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Guard.")
 
-    start_id = count(Guard) + 1
-    prison_ids = [prison.id_penitentiary for prison in prisons]  # Extract prison IDs into a list
+    start_id = len(Guard.select()) + 1
+    prison_ids = [prison.id_penitentiary for prison in prisons]
 
     for i in range(start_id, start_id + num_guards):
         guard_data = {
@@ -288,12 +288,12 @@ def create_guard(num_guards):
             'pesel': str(pesel.generate()),
             'name': fake.first_name(),
             'surname': fake.last_name(),
-            'id_prison': random.choice(prison_ids)
+            'id_penitentiary': random.choice(prison_ids)
         }
 
         # Conditionally add 'rank' attribute with a random value
         if random.choice([True, False]):
-            guard_data['rank'] = fake.random_int()  # nie pamiętam o co chodziło z tym rank
+            guard_data['rank'] = str(random.randint(1, 100))  # nie pamiętam o co chodziło z tym rank
 
         Guard(**guard_data)
 
@@ -302,10 +302,10 @@ def create_guard(num_guards):
 def create_contact_person(num_contact_person):
     prisoners = Prisoner.select()
 
-    if len(prisoners) == 0:
-        raise Exception("No prisoners in the database. Can't create a Contact person.")
+    # if len(prisoners) == 0:
+    #     raise Exception("No prisoners in the database. Can't create a Contact person.")
 
-    start_id = count(ContactPerson) + 1
+    start_id = len(ContactPerson.select()) + 1
     kinships = [
         "Parent",
         "Grandparent",
@@ -321,7 +321,6 @@ def create_contact_person(num_contact_person):
     for i in range(start_id, start_id + num_contact_person):
         contact_person_data = {
             'id_contact_person': i,
-            'pesel': str(pesel.generate()),
             'name': fake.first_name(),
             'surname': fake.last_name(),
         }
@@ -341,8 +340,8 @@ def create_prisoner(num_prisoner):
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Prisoner.")
 
-    genders = ["Male", "Female"]
-    blood_groups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
+    genders = ['F', 'M']
+    blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
     cells = Cell.select()
     cell_ids = [cell.id_cell for cell in cells]
@@ -350,13 +349,13 @@ def create_prisoner(num_prisoner):
     contact_persons = ContactPerson.select()
     contact_person_ids = [person.id_contact_person for person in contact_persons]
 
-    start_id = count(Prisoner) + 1
+    start_id = len(Prisoner.select()) + 1
     for i in range(start_id, start_id + num_prisoner):
         prisoner_data = {
             'id_prisoner': i,
             'pesel': str(pesel.generate()),
-            'name': fake.first_name(),
-            'surname': fake.last_name(),
+            'first_name': fake.first_name(),
+            'last_name': fake.last_name(),
             'admission_date': fake.date_time_between(start_date=datetime(year=1960, month=1, day=1),
                                                      end_date=datetime(year=2023, month=6, day=30)),
             'id_cell': random.choice(cell_ids),
@@ -366,9 +365,11 @@ def create_prisoner(num_prisoner):
         if random.choice([True, False]):
             prisoner_data['id_contact_person'] = random.choice(contact_person_ids)
         if random.choice([True, False]):
-            prisoner_data['height'] = fake.height()
+            prisoner_data['height'] = random.randint(150, 210)
         if random.choice([True, False]):
             prisoner_data['blood_group'] = random.choice(blood_groups)
+        else:
+            prisoner_data['blood_group'] = ''
 
         Prisoner(**prisoner_data)
 
@@ -379,18 +380,18 @@ def create_prison(num_prison):
     if len(prisons) == 0:
         print("No Prisons in the database yet.")
 
-    start_id = count(Prison) + 1
+    start_id = len(prisons) + 1
     for i in range(start_id, start_id + num_prison):
         prison_data = {
             'id_penitentiary': i,
             'penitentiary_name': f'Penitentiary nr: {i}',
             'city': fake.city(),
             'street': fake.street_address(),
-            'building_nr': random.randint(1, count(Building))
+            'building_nr': str(random.randint(1, 50))
         }
 
         if random.choice([True, False]):
-            prison_data['apartment_nr'] = fake.random_int()  # tu też nie pamiętam o co chodzi
+            prison_data['apartment_nr'] = str(random.randint(1, 50))  # tu też nie pamiętam o co chodzi
 
         Prison(**prison_data)
 
@@ -403,13 +404,13 @@ def create_building(num_building):
 
     prison_ids = [prison.id_penitentiary for prison in prisons]
 
-    start_id = count(Building) + 1
+    start_id = len(Building.select()) + 1
     for i in range(start_id, start_id + num_building):
         building_data = {
             'id_building': i,
             'city': fake.city(),
             'street': fake.street_address(),
-            'building_nr': random.randint(1, count(Building)),
+            'building_nr': str(random.randint(1, 50)),
             'id_penitentiary': random.choice(prison_ids)
         }
 
@@ -428,7 +429,7 @@ def create_cell(num_cell):
     blocks = Block.select()
     block_ids = [block.id_block for block in blocks]
 
-    start_id = count(Cell) + 1
+    start_id = len(Cell.select()) + 1
     for i in range(start_id, start_id + num_cell):
         cell_data = {
             'id_cell': i,
@@ -441,19 +442,41 @@ def create_cell(num_cell):
         Cell(**cell_data)
 
 
+# @db_session
+# def create_cell_type():
+#     cell_type = {
+#         '1': 'male',
+#         '2': 'female',
+#         '3': 'separate'
+#     }
+#
+#     for cell_type_id, cell_type_name in cell_type.items():
+#         CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
+
 @db_session
 def create_cell_type():
-    cells = Cell.select()
-    if len(cells) == 0:
-        raise Exception("No Cells in the database. Can't create a Cell type.")
+    cell_type = {
+        '1': 'male',
+        '2': 'female',
+        '3': 'separate'
+    }
 
-    cell_type = {'1': 'male',
-                 '2': 'female',
-                 '3': 'separate'}
+    for cell_type_id, cell_type_name in cell_type.items():
+        if not select(c for c in CellType if c.id_cell_type == cell_type_id).exists():
+            CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
 
-    for cell in cells:
-        cell_type_id, cell_type_name = random.choice(list(cell_type.items()))
-        CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
+# @db_session
+# def create_cell_type(num_cell_type):
+#     cell_type = ['male', 'female', 'separate']
+#
+#     start_id = len(CellType.select()) + 1
+#     for i in range(start_id, start_id + num_cell_type):
+#         cell_type_data = {
+#             'id_cell_type': i,
+#             'cell_type': random.choice(cell_type),
+#         }
+#
+#         CellType(**cell_type_data)
 
 
 @db_session
@@ -473,7 +496,7 @@ def create_block(num_block):
         'Community work'
     ]
 
-    start_id = count(Block) + 1
+    start_id = len(Block.select()) + 1
     for i in range(start_id, start_id + num_block):
         block_data = {
             'id_block': i,

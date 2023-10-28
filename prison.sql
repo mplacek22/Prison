@@ -13,8 +13,8 @@ CREATE TABLE public."ContactPerson" (
 	"IdContactPerson" int4 NOT NULL,
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
-	"Kinship" varchar(15) NULL,
-	"PhoneNr" varchar(15) NULL,
+	"Kinship" varchar(30) NULL,
+	"PhoneNr" varchar(30) NULL,
 	CONSTRAINT "ContactPerson_pkey" PRIMARY KEY ("IdContactPerson")
 );
 
@@ -38,7 +38,7 @@ CREATE TABLE public."Prison" (
 	"IdPenitentiary" int4 NOT NULL,
 	"PenitentiaryName" varchar(30) NOT NULL,
 	"City" varchar(30) NOT NULL,
-	"Street" varchar(30) NOT NULL,
+	"Street" varchar(60) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
 	"ApartmentNr" varchar(5) NULL,
 	CONSTRAINT "Prison_pkey" PRIMARY KEY ("IdPenitentiary")
@@ -63,7 +63,7 @@ CREATE TABLE public."AdministrativeEmployee" (
 CREATE TABLE public."Building" (
 	"IdBuilding" int4 NOT NULL,
 	"City" varchar(30) NOT NULL,
-	"Street" varchar(30) NOT NULL,
+	"Street" varchar(60) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
 	"IdPenitentiary" int4 NOT NULL,
 	CONSTRAINT "Building_pkey" PRIMARY KEY ("IdBuilding"),
@@ -98,7 +98,7 @@ CREATE TABLE public."User" (
 	CONSTRAINT "FK_USER.IdGuard" FOREIGN KEY ("IdGuard") REFERENCES public."Guard"("IdGuard"),
 	CONSTRAINT "FK_User.IdEmployee" FOREIGN KEY ("IdEmployee") REFERENCES public."AdministrativeEmployee"("IdEmployee"),
 	CONSTRAINT "User_type" CHECK (("IdDoctor" IS NOT NULL)::integer + ("IdGuard" IS NOT NULL)::integer + ("IdEmployee" IS NOT NULL)::integer = 1)
- 
+
 );
 
 
@@ -106,7 +106,7 @@ CREATE TABLE public."User" (
 
 CREATE TABLE public."Block" (
 	"IdBlok" int4 NOT NULL,
-	"BlockName" varchar(15) NOT NULL,
+	"BlockName" varchar(30) NOT NULL,
 	"IdBuilding" int4 NOT NULL,
 	CONSTRAINT "Block_pkey" PRIMARY KEY ("IdBlok"),
 	CONSTRAINT "FK_Block.IdBuilding" FOREIGN KEY ("IdBuilding") REFERENCES public."Building"("IdBuilding")
@@ -149,7 +149,7 @@ CREATE TABLE public."GuardDuty" (
 );
 
 
-CREATE TYPE blood_group AS ENUM ('A+', 'A-', 'B+', 'B-', 'AB+','AB-', '0+','0-');
+CREATE TYPE blood_group AS ENUM ('A+', 'A-', 'B+', 'B-', 'AB+','AB-', '0+','0-', '');
 CREATE TYPE sex AS ENUM ('F', 'M');
 
 -- public."Prisoner" definition
