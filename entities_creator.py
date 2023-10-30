@@ -1,4 +1,5 @@
-from datetime import date, timedelta
+import datetime
+from datetime import date, timedelta, time
 import random
 from faker import *
 from entities import *
@@ -155,11 +156,11 @@ def create_furloughs(num_furloughs_per_prisoner=2):
     for prisoner in random.choices(prisoners, k=furloughs_count):
         start_date = fake.date_between(start_date=date(year=2010, month=1, day=1),
                                        end_date=date(year=2023, month=6, day=30))
-        start_time = fake.time_object(end_datetime=datetime(year=2010, month=1, day=1, hour=18, minute=0, second=0),
-                                      timedelta=timedelta(hours=10))
+        start_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                                   second=random.randint(0, 59))
 
-        end_time = fake.time_object(end_datetime=datetime(year=2010, month=1, day=1, hour=18, minute=0, second=0),
-                                    timedelta=timedelta(hours=10))
+        end_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                                 second=random.randint(0, 59))
 
         start_datetime = datetime.combine(start_date, start_time)
         end_datetime = datetime.combine(start_date + timedelta(days=random.randint(1, 14)), end_time)
@@ -184,8 +185,8 @@ def create_visit(num_visits_per_prisoner=5):
     for prisoner in random.choices(prisoners, k=visits_count):
         start_date = fake.date_between(start_date=date(year=2010, month=1, day=1),
                                        end_date=date(year=2023, month=6, day=30))
-        start_time = fake.time_object(end_datetime=datetime(year=2010, month=1, day=1, hour=18),
-                                      timedelta=timedelta(hours=10))
+        start_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                                   second=random.randint(0, 59))
 
         duration = fake.time_delta("+3h")
 
@@ -203,6 +204,7 @@ def create_duties_with_guards(start_datetime=datetime(year=2020, month=1, day=1,
                               end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
     blocks = Block.select()
     guards = Guard.select()
+    prisons = Prison.select()
 
     if len(blocks) == 0:
         print("No blocks in database")
@@ -219,20 +221,31 @@ def create_duties_with_guards(start_datetime=datetime(year=2020, month=1, day=1,
     duty_id = 0
     duration = timedelta(hours=8)
 
-    while start_datetime < end_datetime:
-        busy_guards = set()
-        for block in blocks:
-            duty = Duty(id_duty=duty_id, block=block, start_date=start_datetime, end_date=start_datetime + duration)
-            db.flush()
-            available_guards = list(guards.filter(
-                lambda g: g.id_prison == block.id_building.id_prison and g not in busy_guards))
+    prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
+    prisons_blocks = {prison: [block for building in prison.buildings for block in building.blocks] for prison in prisons}
 
-            if len(available_guards) == 0:
+    while start_datetime < end_datetime:
+        for prison, p_blocks in prisons_blocks.items():
+            duties = []
+            for block in p_blocks:
+                duties.append(Duty(id_duty=duty_id, block=block, start_date=start_datetime, end_date=start_datetime + duration))
+            db.flush()
+            available_guards = prisons_guards[prison]
+            n = len(available_guards)
+
+            if n < len(p_blocks):
                 raise Exception("No guards available for duty")
 
-            for guard in random.sample(available_guards, k=min(random.randint(1, 5), len(available_guards))):
-                GuardDuty(duty=duty, guard=guard)
-                busy_guards.add(guard)
+            guards_on_duty_count = random.randint(0, n - len(p_blocks))
+            for i, block in enumerate(p_blocks + random.choices(p_blocks, k=guards_on_duty_count - len(p_blocks))):
+                idx = random.randint(0, n - 1)
+                guard_duty_data = {
+                    'guard': available_guards[idx],
+                    'duty': duties[i]
+                }
+                GuardDuty(**guard_duty_data)
+                available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
+                n -= 1
             duty_id += 1
         start_datetime += duration
 
@@ -257,7 +270,7 @@ def create_examinations(num_examinations_per_prisoner=5):
         name, result = random.choice(EXAMINATIONS)
 
         Examination(id_examination=examination_id, prisoner=prisoner, examination_date=examination_date,
-                    doctor=doctor, examination_type=name, examination_result=result)
+                    doctor=doctor, examination_type=name, examination_result=result())
 
         examination_id += 1
 
@@ -269,7 +282,7 @@ def create_guard():
         raise Exception("No Prisons in the database. Can't create a Guard.")
 
     prison_ids = [prison.id_prison for prison in prisons]
-    num_guards = len([b for b in Block.select()]) * 10
+    num_guards = len([b for b in Block.select()]) * 15
     for i in range(1, 1 + num_guards):
         guard_data = {
             'id_guard': i,
@@ -370,24 +383,26 @@ def create_prison(num_prison=50):
 
 
 @db_session
-def create_building(num_building=100):
+def create_building(num_additional_building_per_prison=3):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
 
     prison_ids = [prison.id_prison for prison in prisons]
 
-    start_id = len(Building.select()) + 1
-    for i in range(start_id, start_id + num_building):
+    additional_building_count = int(len(prisons) * num_additional_building_per_prison)
+    building_id = 1
+    for prison_id in prison_ids + random.choices(prison_ids, k=additional_building_count):
         building_data = {
-            'id_building': i,
+            'id_building': building_id,
             'city': fake.city(),
             'street': fake.street_address(),
             'building_nr': str(random.randint(1, 50)),
-            'id_prison': random.choice(prison_ids)
+            'id_prison': prison_id
         }
 
         Building(**building_data)
+        building_id += 1
 
 
 @db_session
@@ -454,17 +469,17 @@ def create_cell_type():
 
 
 @db_session
-def create_block(num_block=100): #blocks per prison
+def create_block(num_block_per_building=2):  # blocks per prison
     buildings = Building.select()
     if len(buildings) == 0:
         raise Exception("No Buildings in the database. Can't create a Block.")
 
     building_ids = [building.id_building for building in buildings]
+    block_count = int(len(building_ids) * num_block_per_building)
 
-    start_id = len(Block.select()) + 1
-    for i in range(start_id, start_id + num_block):
+    for block_id in range(1, block_count + 1):
         block_data = {
-            'id_block': i,
+            'id_block': block_id,
             'block_name': random.choice(BLOCK_NAMES),
             'id_building': random.choice(building_ids),
         }
