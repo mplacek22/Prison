@@ -1,10 +1,27 @@
-import datetime
-from datetime import date, timedelta, time
+from datetime import date, timedelta, time, datetime
 import random
 from faker import *
 from entities import *
 
 fake = Faker("pl_PL")
+
+RANKS = [
+    "Kapral",
+    "Sierżant",
+    "Starszy Sierżant",
+    "Plutonowy",
+    "Sierżant Sztabowy",
+    "Młodszy Chorąży",
+    "Chorąży",
+    "Chorąży Sztabowy",
+    "Podporucznik",
+    "Porucznik",
+    "Kapitan",
+    "Major",
+    "Podpułkownik",
+    "Pułkownik",
+    "Generał"
+]
 
 SPECIALIZATIONS = [
     "Kardiolog",
@@ -83,7 +100,7 @@ BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
 
 @db_session
-def create_administrative_employees(num_admins=5000):
+def create_administrative_employees(num_admins=500):
     prison_ids = select(p.id_prison for p in Prison)[:]
     if not prison_ids:
         raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
@@ -100,7 +117,7 @@ def create_administrative_employees(num_admins=5000):
 
 
 @db_session
-def create_doctors(num_doctors=2000):
+def create_doctors(num_doctors=200):
     for i in range(1, 1 + num_doctors):
         doctor_data = {
             'id_doctor': i,
@@ -127,69 +144,79 @@ def create_users():
 
 @db_session
 def create_sentences(num_additional_sentences_per_prisoner=0.75):
-    prisoners = list(Prisoner.select())
+    prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
-    if len(prisoners) == 0:
+    if len(prisoner_ids) == 0:
         print("No prisoners in database")
         return
 
     sentence_id = len(Sentence.select()) + 1
-    additional_sentences = int(len(prisoners) * num_additional_sentences_per_prisoner)
+    additional_sentences = int(len(prisoner_ids) * num_additional_sentences_per_prisoner)
 
-    for prisoner in prisoners + random.choices(prisoners, k=additional_sentences):
+    for prisoner_id in prisoner_ids + random.choices(prisoner_ids, k=additional_sentences):
         # 9150 days is 25 years, more is life sentence, coded as 20 000
         duration = random.randint(1, 9200)
         if duration > 9150:
             duration = 20000
-        Sentence(id_sentence=sentence_id, prisoner=prisoner, stay_duration_days=duration,
-                 article=str(random.randint(1, 400)), paragraph=random.randint(1, 15))
+
+        sentence_data = {
+            'id_sentence': sentence_id,
+            'id_prisoner': prisoner_id,
+            'stay_duration_days': duration,
+            'article': str(random.randint(1, 400)),
+            'paragraph': random.randint(1, 15)
+        }
+
+        Sentence(**sentence_data)
 
         sentence_id += 1
 
 
 @db_session
 def create_furloughs(num_furloughs_per_prisoner=2):
-    prisoners = list(Prisoner.select())
+    prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
-    if len(prisoners) == 0:
+    if len(prisoner_ids) == 0:
         raise Exception("No prisoners in database")
 
-    furlough_id = 0
-    furloughs_count = int(len(prisoners) * num_furloughs_per_prisoner)
+    furloughs_count = int(len(prisoner_ids) * num_furloughs_per_prisoner)
 
-    for prisoner in random.choices(prisoners, k=furloughs_count):
-        start_date = fake.date_between(start_date=date(year=2010, month=1, day=1),
+    for furlough_id in range(1, furloughs_count + 1):
+        start_date = fake.date_between(start_date=date(year=2020, month=1, day=1),
                                        end_date=date(year=2023, month=6, day=30))
-        start_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
-                                   second=random.randint(0, 59))
+        start_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                          second=random.randint(0, 59))
 
-        end_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
-                                 second=random.randint(0, 59))
+        end_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                        second=random.randint(0, 59))
 
         start_datetime = datetime.combine(start_date, start_time)
         end_datetime = datetime.combine(start_date + timedelta(days=random.randint(1, 14)), end_time)
 
-        Furlough(id_furlough=furlough_id, prisoner=prisoner,
-                 start_date=start_datetime, end_date=end_datetime)
+        furlough_data = {
+            'id_furlough': furlough_id,
+            'id_prisoner': random.choice(prisoner_ids),
+            'start_date': start_datetime,
+            'end_date': end_datetime
+        }
 
-        furlough_id += 1
+        Furlough(**furlough_data)
 
 
 @db_session
 def create_visit(num_visits_per_prisoner=5):
-    prisoners = list(Prisoner.select())
+    prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
-    if len(prisoners) == 0:
+    if len(prisoner_ids) == 0:
         print("No prisoners in database.")
         return
 
-    visit_id = len(Visit.select()) + 1
-    visits_count = int(len(prisoners) * num_visits_per_prisoner)
+    visits_count = int(len(prisoner_ids) * num_visits_per_prisoner)
 
-    for prisoner in random.choices(prisoners, k=visits_count):
-        start_date = fake.date_between(start_date=date(year=2010, month=1, day=1),
+    for visit_id in range(1, visits_count + 1):
+        start_date = fake.date_between(start_date=date(year=2020, month=1, day=1),
                                        end_date=date(year=2023, month=6, day=30))
-        start_time = datetime.time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+        start_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
                                    second=random.randint(0, 59))
 
         duration = timedelta(hours=random.randint(1, 3), minutes=random.randint(0, 59),
@@ -198,10 +225,16 @@ def create_visit(num_visits_per_prisoner=5):
         start_datetime = datetime.combine(start_date, start_time)
         end_datetime = start_datetime + duration
 
-        Visit(id_visit=visit_id, prisoner=prisoner, start_date=start_datetime, end_date=end_datetime,
-              name=fake.first_name(), surname=fake.last_name())
+        visit_data = {
+            'id_visit': visit_id,
+            'id_prisoner': random.choice(prisoner_ids),
+            'start_date': start_datetime,
+            'end_date': end_datetime,
+            'name': fake.first_name(),
+            'surname': fake.last_name()
+        }
 
-        visit_id += 1
+        Visit(**visit_data)
 
 
 @db_session
@@ -212,7 +245,7 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
     prisons = Prison.select()
 
     if len(blocks) == 0:
-        print("No blocks in database")
+        raise ("No blocks in database")
         return
 
     if len(guards) == 0:
@@ -227,57 +260,74 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
     duration = timedelta(hours=8)
 
     prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
-    prisons_blocks = {prison: [block for building in prison.buildings for block in building.blocks] for prison in prisons}
+    prisons_blocks = {prison: [block for building in prison.buildings for block in building.blocks]
+                      for prison in prisons}
 
     while start_datetime < end_datetime:
         for prison, p_blocks in prisons_blocks.items():
             duties = []
             for block in p_blocks:
-                duties.append(Duty(id_duty=duty_id, block=block, start_date=start_datetime, end_date=start_datetime + duration))
+                duty_data = {
+                    'id_duty': duty_id,
+                    'block': block,
+                    'start_date': start_datetime,
+                    'end_date': start_datetime + duration
+                }
+
+                duties.append(Duty(**duty_data))
+                duty_id += 1
+
             db.flush()
             available_guards = prisons_guards[prison]
             n = len(available_guards)
 
-            if n < len(p_blocks):
+            if n < len(duties):
                 raise Exception("No guards available for duty")
 
-            guards_on_duty_count = random.randint(0, n - len(p_blocks))
-            for i, block in enumerate(p_blocks + random.choices(p_blocks, k=guards_on_duty_count - len(p_blocks))):
+            guards_on_duty_count = random.randint(0, n - len(duties))
+            for duty in duties + random.choices(duties, k=guards_on_duty_count - len(duties)):
                 idx = random.randint(0, n - 1)
                 guard_duty_data = {
                     'guard': available_guards[idx],
-                    'duty': duties[i]
+                    'duty': duty
                 }
                 GuardDuty(**guard_duty_data)
                 available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
                 n -= 1
-            duty_id += 1
         start_datetime += duration
 
 
 @db_session
 def create_examinations(num_examinations_per_prisoner=5):
-    prisoners = list(Prisoner.select())
-    doctors = list(Doctor.select())
+    prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
+    doctor_ids = select(doctor.id_doctor for doctor in Doctor)[:]
 
-    if len(prisoners) == 0:
-        print("No prisoners in database.")
-        return
+    if len(prisoner_ids) == 0:
+        raise Exception("No prisoners in database.")
 
-    examination_id = len(Examination.select()) + 1
-    examinations_count = int(len(prisoners) * num_examinations_per_prisoner)
+    if len(doctor_ids) == 0:
+        raise Exception("No doctors in database.")
 
-    for prisoner in random.choices(prisoners, k=examinations_count):
-        doctor = random.choice(doctors)
-        examination_date = fake.date_time_between(start_date=datetime(year=2010, month=1, day=1),
+    examinations_count = int(len(prisoner_ids) * num_examinations_per_prisoner)
+
+    for examination_id in range(1, examinations_count + 1):
+        doctor_id = random.choice(doctor_ids)
+        prisoner_id = random.choice(prisoner_ids)
+        examination_date = fake.date_time_between(start_date=datetime(year=2020, month=1, day=1),
                                                   end_date=datetime(year=2023, month=6, day=30))
 
         name, result = random.choice(EXAMINATIONS)
 
-        Examination(id_examination=examination_id, prisoner=prisoner, examination_date=examination_date,
-                    doctor=doctor, examination_type=name, examination_result=result())
+        examination_data = {
+            'id_examination': examination_id,
+            'id_prisoner': prisoner_id,
+            'examination_date': examination_date,
+            'id_doctor': doctor_id,
+            'examination_type': name,
+            'examination_result': result()
+        }
 
-        examination_id += 1
+        Examination(**examination_data)
 
 
 @db_session
@@ -297,9 +347,9 @@ def create_guards():
             'id_prison': random.choice(prison_ids)
         }
 
-        probability = 0.8
+        probability = 0.9
         if random.random() < probability:
-            guard_data['rank'] = str(random.randint(1, 100))  # nie pamiętam o co chodziło z tym rank
+            guard_data['rank'] = random.choice(RANKS)
 
         Guard(**guard_data)
 
@@ -384,7 +434,7 @@ def create_prisons(num_prisons=50):
 
 
 @db_session
-def create_building(num_additional_building_per_prison=3):
+def create_buildings(num_additional_building_per_prison=3):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
@@ -445,7 +495,7 @@ def create_cell_types():
 
 
 @db_session
-def create_block(num_block_per_building=2):  # blocks per prison
+def create_blocks(num_block_per_building=2):  # blocks per prison
     buildings = Building.select()
     if len(buildings) == 0:
         raise Exception("No Buildings in the database. Can't create a Block.")

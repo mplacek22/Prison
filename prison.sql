@@ -149,7 +149,7 @@ CREATE TABLE public."GuardDuty" (
 );
 
 
-CREATE TYPE blood_group AS ENUM ('A+', 'A-', 'B+', 'B-', 'AB+','AB-', '0+','0-', '');
+CREATE TYPE blood_group AS ENUM ('A+', 'A-', 'B+', 'B-', 'AB+','AB-', '0+','0-');
 CREATE TYPE sex AS ENUM ('F', 'M');
 
 -- public."Prisoner" definition

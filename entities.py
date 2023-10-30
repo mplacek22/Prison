@@ -159,14 +159,14 @@ class Sentence(db.Entity):
     article = Required(str, column="Article")
     paragraph = Required(int, column="Paragraph")
     stay_duration_days = Required(int, column="StayDurationDays")
-    prisoner = Required(Prisoner, column="IdPrisoner")
+    id_prisoner = Required(Prisoner, column="IdPrisoner")
 
 
 # Define the "Visit" entity
 class Visit(db.Entity):
     _table_ = "Visit"
     id_visit = PrimaryKey(int, column="IdVisit")
-    prisoner = Required(Prisoner, column="IdPrisoner")
+    id_prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")
     name = Required(str, column="Name")
@@ -177,8 +177,8 @@ class Visit(db.Entity):
 class Examination(db.Entity):
     _table_ = "Examination"
     id_examination = PrimaryKey(int, column="IdExamination")
-    doctor = Required(Doctor, column="IdDoctor")
-    prisoner = Required(Prisoner, column="IdPrisoner")
+    id_doctor = Required(Doctor, column="IdDoctor")
+    id_prisoner = Required(Prisoner, column="IdPrisoner")
     examination_type = Required(str, column="ExaminationType")
     examination_date = Required(datetime, column="ExaminationDate")
     examination_result = Required(str, column="ExaminationResult")
@@ -188,6 +188,6 @@ class Examination(db.Entity):
 class Furlough(db.Entity):
     _table_ = "Furlough"
     id_furlough = PrimaryKey(int, column="IdFurlough")
-    prisoner = Required(Prisoner, column="IdPrisoner")
+    id_prisoner = Required(Prisoner, column="IdPrisoner")
     start_date = Required(datetime, column="StartDate")
     end_date = Required(datetime, column="EndDate")
