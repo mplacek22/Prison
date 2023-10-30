@@ -147,8 +147,7 @@ def create_sentences(num_additional_sentences_per_prisoner=0.75):
     prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
     if len(prisoner_ids) == 0:
-        print("No prisoners in database")
-        return
+        raise Exception("No prisoners in database")
 
     sentence_id = len(Sentence.select()) + 1
     additional_sentences = int(len(prisoner_ids) * num_additional_sentences_per_prisoner)
@@ -208,8 +207,7 @@ def create_visit(num_visits_per_prisoner=5):
     prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
     if len(prisoner_ids) == 0:
-        print("No prisoners in database.")
-        return
+        raise Exception("No prisoners in database.")
 
     visits_count = int(len(prisoner_ids) * num_visits_per_prisoner)
 
@@ -245,16 +243,13 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
     prisons = Prison.select()
 
     if len(blocks) == 0:
-        raise ("No blocks in database")
-        return
+        raise Exception("No blocks in database")
 
     if len(guards) == 0:
-        print("No guards in database")
-        return
+        raise Exception("No guards in database")
 
     if len(Duty.select()) != 0:
-        print("Duties already created")
-        return
+        raise Exception("Duties already created")
 
     duty_id = 0
     duration = timedelta(hours=8)
