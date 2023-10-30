@@ -20,3 +20,9 @@ Iza:
 * budynek - done
 * straznik - done
 * typy celi - done
+
+cell_type -> int
+blocks per prison
+cells per block
+zamienić print na raise exception
+time object
