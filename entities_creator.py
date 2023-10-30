@@ -10,11 +10,11 @@ pesel = RandomPESEL()
 
 @db_session
 def create_administrative_employees(num_admins):
-    if count(Prison) == 0:
+    prison_ids = select(p.id_penitentiary for p in Prison)[:]
+    if len(prison_ids) == 0:
         raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
 
-    start_id = count(AdministrativeEmployee) + 1
-    prisons = select(p for p in Prison)
+    start_id = count(a for a in AdministrativeEmployee) + 1
 
     for i in range(start_id, start_id + num_admins):
         admin_data = {
@@ -22,7 +22,7 @@ def create_administrative_employees(num_admins):
             'pesel': str(pesel.generate()),
             'name': fake.first_name(),
             'surname': fake.last_name(),
-            'id_prison': random.choice(prisons)
+            'id_penitentiary': random.choice(prison_ids)
         }
         AdministrativeEmployee(**admin_data)
 
@@ -60,12 +60,14 @@ def create_doctors(num_doctors):
 @db_session
 def create_users():
     for admin in AdministrativeEmployee.select():
-        User(username=fake.unique.username(), password=fake.password(length=random.randint(8, 30)),
+        User(username=fake.unique.user_name(), password=fake.password(length=random.randint(8, 30)),
              id_employee=admin.id_employee)
     for guard in Guard.select():
-        User(username=fake.unique.username(), password=fake.password(), id_guard=guard.id_guard)
+        User(username=fake.unique.user_name(), password=fake.password(length=random.randint(8, 30)),
+             id_guard=guard.id_guard)
     for doctor in Doctor.select():
-        User(username=fake.unique.user_name(), password=fake.password(), id_doctor=doctor.id_doctor)
+        User(username=fake.unique.user_name(), password=fake.password(length=random.randint(8, 30)),
+             id_doctor=doctor.id_doctor)
 
 
 @db_session
@@ -386,12 +388,10 @@ def create_prison(num_prison):
             'id_penitentiary': i,
             'penitentiary_name': f'Penitentiary nr: {i}',
             'city': fake.city(),
-            'street': fake.street_address(),
-            'building_nr': str(random.randint(1, 50))
+            'street': fake.street_name(),
+            'building_nr': fake.building_number(),
+            'apartment_nr': str(random.randint(1, 1000)) if random.choice([True, False]) else ''
         }
-
-        if random.choice([True, False]):
-            prison_data['apartment_nr'] = str(random.randint(1, 50))  # tu też nie pamiętam o co chodzi
 
         Prison(**prison_data)
 
@@ -464,6 +464,7 @@ def create_cell_type():
     for cell_type_id, cell_type_name in cell_type.items():
         if not select(c for c in CellType if c.id_cell_type == cell_type_id).exists():
             CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
+
 
 # @db_session
 # def create_cell_type(num_cell_type):
