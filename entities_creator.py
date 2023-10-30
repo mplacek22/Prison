@@ -7,11 +7,35 @@ from entities import *
 fake = Faker()
 pesel = RandomPESEL()
 
+SPECIALIZATIONS = [
+    "Cardiologist",
+    "Pediatrician",
+    "Neurologist",
+    "Dermatologist",
+    "Orthopedic Surgeon",
+    "Gynecologist",
+    "Gastroenterologist",
+    "Radiologist",
+    "Ophthalmologist",
+    "Urologist",
+    "Oncologist",
+    "Pulmonologist",
+    "Endocrinologist",
+    "Nephrologist",
+    "Rheumatologist",
+    "Psychiatrist",
+    "Anesthesiologist",
+    "General Surgeon",
+    "Infectious Disease Specialist",
+    "Hematologist"
+]
+
+
 
 @db_session
-def create_administrative_employees(num_admins):
+def create_administrative_employees(num_admins=5000):
     prison_ids = select(p.id_penitentiary for p in Prison)[:]
-    if len(prison_ids) == 0:
+    if not prison_ids:
         raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
 
     start_id = count(a for a in AdministrativeEmployee) + 1
@@ -28,33 +52,17 @@ def create_administrative_employees(num_admins):
 
 
 @db_session
-def create_doctors(num_doctors):
-    specializations = [
-        "Cardiologist",
-        "Pediatrician",
-        "Neurologist",
-        "Dermatologist",
-        "Orthopedic Surgeon",
-        "Gynecologist",
-        "Gastroenterologist",
-        "Radiologist",
-        "Ophthalmologist",
-        "Urologist",
-        "Oncologist",
-        "Pulmonologist",
-        "Endocrinologist",
-        "Nephrologist",
-        "Rheumatologist",
-        "Psychiatrist",
-        "Anesthesiologist",
-        "General Surgeon",
-        "Infectious Disease Specialist",
-        "Hematologist"
-    ]
+def create_doctors(num_doctors=5000):
     start_id = count(d for d in Doctor) + 1
     for i in range(start_id, start_id + num_doctors):
-        Doctor(id_doctor=i, pesel=str(pesel.generate()), name=fake.first_name(), surname=fake.last_name(),
-               specialization=random.choice(specializations))
+        doctor_data = {
+            'id_doctor': i,
+            'pesel': str(pesel.generate()),
+            'name': fake.first_name(),
+            'surname': fake.last_name(),
+            'specialization': random.choice(SPECIALIZATIONS)
+        }
+        Doctor(**doctor_data)
 
 
 @db_session
