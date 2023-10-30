@@ -1,63 +1,105 @@
 from datetime import date, timedelta
 import random
 from faker import *
-from random_pesel import RandomPESEL
 from entities import *
 
-fake = Faker()
-pesel = RandomPESEL()
+fake = Faker("pl_PL")
 
 SPECIALIZATIONS = [
-    "Cardiologist",
-    "Pediatrician",
-    "Neurologist",
-    "Dermatologist",
-    "Orthopedic Surgeon",
-    "Gynecologist",
-    "Gastroenterologist",
-    "Radiologist",
-    "Ophthalmologist",
-    "Urologist",
-    "Oncologist",
-    "Pulmonologist",
-    "Endocrinologist",
-    "Nephrologist",
-    "Rheumatologist",
-    "Psychiatrist",
-    "Anesthesiologist",
-    "General Surgeon",
-    "Infectious Disease Specialist",
-    "Hematologist"
+    "Kardiolog",
+    "Pediatra",
+    "Neurolog",
+    "Dermatolog",
+    "Ortopeda",
+    "Ginekolog",
+    "Gastroenterolog",
+    "Radiolog",
+    "Okulista",
+    "Urolog",
+    "Onkolog",
+    "Pulmonolog",
+    "Endokrynolog",
+    "Nefrolog",
+    "Reumatolog",
+    "Psychiatra",
+    "Anestezjolog",
+    "Chirurg ogólny",
+    "Specjalista chorób zakaźnych",
+    "Hematolog"
 ]
 
+EXAMINATIONS = [
+    ("Masa ciała", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
+    ("Temperatura ciała", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
+    ("Poziom cukru we krwi", lambda: str(round(random.uniform(70, 120), 1))),
+    ("Ciśnienie krwi", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
+    ("Poziom cholesterolu", lambda: random.choice(["Wynik prawidłowy", "Podwyższony", "Zbyt niski"])),
+    ("Wynik morfologii krwi", lambda: random.choice(["Normalny", "Anemia", "Leukocytoza"])),
+    ("Poziom wapnia we krwi", lambda: str(round(random.uniform(8.0, 10.5), 2))),
+    ("Poziom potasu we krwi", lambda: str(round(random.uniform(3.5, 5.5), 2))),
+    ("Poziom sodu we krwi", lambda: str(round(random.uniform(135, 145), 2))),
+    ("Wynik testu alergii", lambda: random.choice(["Brak alergii", "Alergia na pyłki", "Alergia na orzechy"])),
+    ("Poziom witaminy D", lambda: str(round(random.uniform(20, 60), 2))),
+    ("Poziom magnezu we krwi", lambda: str(round(random.uniform(1.5, 2.5), 2))),
+    ("Poziom cynku we krwi", lambda: str(round(random.uniform(50, 120), 2))),
+    ("Wynik prób wątrobowych",
+     lambda: random.choice(["Wynik prawidłowy", "Podwyższone", "Podejrzenie uszkodzenia wątroby"])),
+    ("Poziom trójglicerydów", lambda: str(round(random.uniform(50, 200), 1))),
+    ("Poziom kreatyniny we krwi", lambda: str(round(random.uniform(0.5, 1.5), 2))),
+    ("Kolonoskopia", lambda: random.choice(["Wynik negatywny", "Polip wykryty", "Nowotwór wykryty"])),
+    ("Mammografia", lambda: random.choice(["Wynik negatywny", "Znaleziono nieprawidłowość"])),
+    ("USG jamy brzusznej", lambda: random.choice(["Wynik prawidłowy", "Znaleziono nieprawidłowość"])),
+    ("Elektrokardiogram", lambda: random.choice(["Wynik prawidłowy", "Zaburzenia rytmu", "Niedokrwienie serca"])),
+    ("Konsultacja okulisty", lambda: random.choice(["Wynik prawidłowy", "Wymagana dalsza konsultacja"])),
+    ("Badanie moczu", lambda: random.choice(["Wynik prawidłowy", "Obecność infekcji", "Inne nieprawidłowości"])),
+    ("Test COVID-19", lambda: random.choice(["Wynik negatywny", "Wynik pozytywny", "Wymagane dalsze testy"]))
+]
+
+BLOCK_NAMES = [
+    'Izolatki',
+    'Nieletni',
+    'Niski Poziom Zabezpieczeń',
+    'Wysoki Poziom Zabezpieczeń',
+    'Chororzy Psychicznie',
+    'Pracujący Społecznie'
+]
+
+KINSHIPS = [
+    "Rodzic",
+    "Dziadek",
+    "Dziecko",
+    "Wnuk",
+    "Rodzeństwo",
+    "Małżonek",
+    "Krewny",
+    "Znajomy",
+    "Nieznajomy",
+]
 
 
 @db_session
 def create_administrative_employees(num_admins=5000):
-    prison_ids = select(p.id_penitentiary for p in Prison)[:]
+    prison_ids = select(p.id_prison for p in Prison)[:]
     if not prison_ids:
         raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
 
-    start_id = count(a for a in AdministrativeEmployee) + 1
-
-    for i in range(start_id, start_id + num_admins):
+    for i in range(1, num_admins + 1):
         admin_data = {
             'id_employee': i,
-            'pesel': str(pesel.generate()),
+            'pesel': fake.pesel(),
             'name': fake.first_name(),
             'surname': fake.last_name(),
-            'id_penitentiary': random.choice(prison_ids)
+            'id_prison': random.choice(prison_ids)
         }
         AdministrativeEmployee(**admin_data)
 
 
 @db_session
-def create_doctors(num_doctors=5000):
-    start_id = count(d for d in Doctor) + 1
-    for i in range(start_id, start_id + num_doctors):
+def create_doctors(num_doctors=2000):
+    for i in range(1, 1 + num_doctors):
         doctor_data = {
             'id_doctor': i,
-            'pesel': str(pesel.generate()),
+            'pesel': fake.pesel(),
             'name': fake.first_name(),
             'surname': fake.last_name(),
             'specialization': random.choice(SPECIALIZATIONS)
@@ -105,11 +147,10 @@ def create_furloughs(num_furloughs_per_prisoner=2):
     prisoners = Prisoner.select()
 
     if len(prisoners) == 0:
-        print("No prisoners in database")
-        return
+        raise Exception("No prisoners in database")
 
     furlough_id = 0
-    furloughs_count = int(len(prisoners))
+    furloughs_count = int(len(prisoners) * num_furloughs_per_prisoner)
 
     for prisoner in random.choices(prisoners, k=furloughs_count):
         start_date = fake.date_between(start_date=date(year=2010, month=1, day=1),
@@ -158,7 +199,7 @@ def create_visit(num_visits_per_prisoner=5):
 
 
 @db_session
-def create_duties_with_guards(start_datetime=datetime(year=2010, month=1, day=1, hour=6, minute=0, second=0),
+def create_duties_with_guards(start_datetime=datetime(year=2020, month=1, day=1, hour=6, minute=0, second=0),
                               end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
     blocks = Block.select()
     guards = Guard.select()
@@ -183,8 +224,8 @@ def create_duties_with_guards(start_datetime=datetime(year=2010, month=1, day=1,
         for block in blocks:
             duty = Duty(id_duty=duty_id, block=block, start_date=start_datetime, end_date=start_datetime + duration)
             db.flush()
-            available_guards = guards.filter(
-                lambda g: g.id_penitentiary == block.id_building.id_penitentiary and g not in busy_guards)
+            available_guards = list(guards.filter(
+                lambda g: g.id_prison == block.id_building.id_prison and g not in busy_guards))
 
             if len(available_guards) == 0:
                 raise Exception("No guards available for duty")
@@ -208,38 +249,12 @@ def create_examinations(num_examinations_per_prisoner=5):
     examination_id = len(Examination.select()) + 1
     examinations_count = int(len(prisoners) * num_examinations_per_prisoner)
 
-    examinations = [
-        ("Body Weight", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
-        ("Body Temperature", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
-        ("Blood Sugar Level", lambda: str(round(random.uniform(70, 120), 1))),
-        ("Blood Pressure", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
-        ("Cholesterol Level", lambda: random.choice(["Normal result", "Elevated", "Too low"])),
-        ("Blood Morphology Result", lambda: random.choice(["Normal", "Anemia", "Leukocytosis"])),
-        ("Calcium Level in Blood", lambda: str(round(random.uniform(8.0, 10.5), 2))),
-        ("Potassium Level in Blood", lambda: str(round(random.uniform(3.5, 5.5), 2))),
-        ("Sodium Level in Blood", lambda: str(round(random.uniform(135, 145), 2))),
-        ("Allergy Test Result", lambda: random.choice(["No allergy", "Pollen allergy", "Nut allergy"])),
-        ("Vitamin D Level", lambda: str(round(random.uniform(20, 60), 2))),
-        ("Magnesium Level in Blood", lambda: str(round(random.uniform(1.5, 2.5), 2))),
-        ("Zinc Level in Blood", lambda: str(round(random.uniform(50, 120), 2))),
-        ("Liver Function Test Result", lambda: random.choice(["Normal result", "Elevated", "Suspected liver damage"])),
-        ("Triglyceride Level", lambda: str(round(random.uniform(50, 200), 1))),
-        ("Creatinine Level in Blood", lambda: str(round(random.uniform(0.5, 1.5), 2))),
-        ("Colonoscopy", lambda: random.choice(["Negative result", "Polyp detected", "Tumor detected"])),
-        ("Mammography", lambda: random.choice(["Negative result", "Abnormality detected"])),
-        ("Abdominal Ultrasound", lambda: random.choice(["Normal result", "Abnormality detected"])),
-        ("Electrocardiogram", lambda: random.choice(["Normal result", "Rhythm disturbances", "Heart ischemia"])),
-        ("Ophthalmologist Consultation", lambda: random.choice(["Normal result", "Further consultation required"])),
-        ("Urine Test", lambda: random.choice(["Normal result", "Presence of infection", "Other abnormalities"])),
-        ("COVID-19 Test", lambda: random.choice(["Negative result", "Positive result", "Further testing required"]))
-    ]
-
     for prisoner in random.choices(prisoners, k=examinations_count):
         doctor = random.choice(doctors)
         examination_date = fake.date_time_between(start_date=datetime(year=2010, month=1, day=1),
                                                   end_date=datetime(year=2023, month=6, day=30))
 
-        name, result = random.choice(examinations)
+        name, result = random.choice(EXAMINATIONS)
 
         Examination(id_examination=examination_id, prisoner=prisoner, examination_date=examination_date,
                     doctor=doctor, examination_type=name, examination_result=result)
@@ -248,21 +263,20 @@ def create_examinations(num_examinations_per_prisoner=5):
 
 
 @db_session
-def create_guard(num_guards):
+def create_guard():
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Guard.")
 
-    start_id = len(Guard.select()) + 1
-    prison_ids = [prison.id_penitentiary for prison in prisons]
-
-    for i in range(start_id, start_id + num_guards):
+    prison_ids = [prison.id_prison for prison in prisons]
+    num_guards = len([b for b in Block.select()]) * 10
+    for i in range(1, 1 + num_guards):
         guard_data = {
             'id_guard': i,
-            'pesel': str(pesel.generate()),
+            'pesel': fake.pesel(),
             'name': fake.first_name(),
             'surname': fake.last_name(),
-            'id_penitentiary': random.choice(prison_ids)
+            'id_prison': random.choice(prison_ids)
         }
 
         # Conditionally add 'rank' attribute with a random value
@@ -273,24 +287,13 @@ def create_guard(num_guards):
 
 
 @db_session
-def create_contact_person(num_contact_person):
+def create_contact_person(num_contact_person=1000):  # associate with prisoner
     prisoners = Prisoner.select()
 
     # if len(prisoners) == 0:
     #     raise Exception("No prisoners in the database. Can't create a Contact person.")
 
     start_id = len(ContactPerson.select()) + 1
-    kinships = [
-        "Parent",
-        "Grandparent",
-        "Child",
-        "Grandchild",
-        "Sibling",
-        "Spouse",
-        "Relative",
-        "Acquaintance",
-        "Stranger",
-    ]
 
     for i in range(start_id, start_id + num_contact_person):
         contact_person_data = {
@@ -303,13 +306,13 @@ def create_contact_person(num_contact_person):
         if random.choice([True, False]):
             contact_person_data['phone_nr'] = fake.phone_number()
         if random.choice([True, False]):
-            contact_person_data['kinship'] = random.choice(kinships)
+            contact_person_data['kinship'] = random.choice(KINSHIPS)
 
         ContactPerson(**contact_person_data)
 
 
 @db_session
-def create_prisoner(num_prisoner):
+def create_prisoner(num_prisoner=2000):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Prisoner.")
@@ -327,7 +330,7 @@ def create_prisoner(num_prisoner):
     for i in range(start_id, start_id + num_prisoner):
         prisoner_data = {
             'id_prisoner': i,
-            'pesel': str(pesel.generate()),
+            'pesel': fake.pesel(),
             'first_name': fake.first_name(),
             'last_name': fake.last_name(),
             'admission_date': fake.date_time_between(start_date=datetime(year=1960, month=1, day=1),
@@ -349,15 +352,13 @@ def create_prisoner(num_prisoner):
 
 
 @db_session
-def create_prison(num_prison):
+def create_prison(num_prison=50):
     prisons = Prison.select()
-    if len(prisons) == 0:
-        print("No Prisons in the database yet.")
 
     start_id = len(prisons) + 1
     for i in range(start_id, start_id + num_prison):
         prison_data = {
-            'id_penitentiary': i,
+            'id_prison': i,
             'penitentiary_name': f'Penitentiary nr: {i}',
             'city': fake.city(),
             'street': fake.street_name(),
@@ -369,12 +370,12 @@ def create_prison(num_prison):
 
 
 @db_session
-def create_building(num_building):
+def create_building(num_building=100):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
 
-    prison_ids = [prison.id_penitentiary for prison in prisons]
+    prison_ids = [prison.id_prison for prison in prisons]
 
     start_id = len(Building.select()) + 1
     for i in range(start_id, start_id + num_building):
@@ -383,14 +384,14 @@ def create_building(num_building):
             'city': fake.city(),
             'street': fake.street_address(),
             'building_nr': str(random.randint(1, 50)),
-            'id_penitentiary': random.choice(prison_ids)
+            'id_prison': random.choice(prison_ids)
         }
 
         Building(**building_data)
 
 
 @db_session
-def create_cell(num_cell):
+def create_cell(num_cell=5000):  # cells per block
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Cell.")
@@ -453,28 +454,38 @@ def create_cell_type():
 
 
 @db_session
-def create_block(num_block):
+def create_block(num_block=100): #blocks per prison
     buildings = Building.select()
     if len(buildings) == 0:
         raise Exception("No Buildings in the database. Can't create a Block.")
 
     building_ids = [building.id_building for building in buildings]
 
-    block_names = [
-        'Separated',
-        'Minor',
-        'Min Security',
-        'Max Security',
-        'Mental illnesses',
-        'Community work'
-    ]
-
     start_id = len(Block.select()) + 1
     for i in range(start_id, start_id + num_block):
         block_data = {
             'id_block': i,
-            'block_name': random.choice(block_names),
+            'block_name': random.choice(BLOCK_NAMES),
             'id_building': random.choice(building_ids),
         }
 
         Block(**block_data)
+
+
+def populate_db():
+    create_cell_type()
+    create_contact_person()
+    create_doctors()
+    create_prison()
+    create_administrative_employees()
+    create_building()
+    create_block()
+    create_cell()
+    create_guard()
+    create_users()
+    create_duties_with_guards()
+    create_prisoner()
+    create_sentences()
+    create_visit()
+    create_examinations()
+    create_furloughs()

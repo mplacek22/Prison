@@ -38,7 +38,7 @@ class Doctor(db.Entity):
 # Define the "Prison" entity
 class Prison(db.Entity):
     _table_ = "Prison"
-    id_penitentiary = PrimaryKey(int, column="IdPenitentiary")
+    id_prison = PrimaryKey(int, column="IdPrison")
     penitentiary_name = Required(str, column="PenitentiaryName")
     city = Required(str, column="City")
     street = Required(str, column="Street")
@@ -56,7 +56,7 @@ class AdministrativeEmployee(db.Entity):
     pesel = Required(str, column="PESEL")
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
-    id_penitentiary = Required(Prison, column="IdPenitentiary")
+    id_prison = Required(Prison, column="IdPrison")
     users = Set("User")
 
 
@@ -67,7 +67,7 @@ class Building(db.Entity):
     city = Required(str, column="City")
     street = Required(str, column="Street")
     building_nr = Required(str, column="BuildingNr")
-    id_penitentiary = Required(Prison, column="IdPenitentiary")
+    id_prison = Required(Prison, column="IdPrison")
     blocks = Set("Block")
 
 
@@ -79,7 +79,7 @@ class Guard(db.Entity):
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
     rank = Optional(str, column="Rank")
-    id_penitentiary = Required(Prison, column="IdPenitentiary")
+    id_prison = Required(Prison, column="IdPrison")
     users = Set("User")
     duties = Set("GuardDuty")
 
@@ -131,17 +131,6 @@ class GuardDuty(db.Entity):
     duty = Required(Duty, column="IdDuty")
     guard = Required(Guard, column="IdGuard")
     PrimaryKey(duty, guard)
-
-
-#
-# # Define the blood group enum
-# class BloodGroupEnum(db.Entity):
-#     value = Required(str, column="value")
-#
-#
-# # Define the sex enum
-# class SexEnum(db.Entity):
-#     value = Required(str, column="value")
 
 
 # Define the "Prisoner" entity
