@@ -35,13 +35,13 @@ CREATE TABLE public."Doctor" (
 -- public."Prison" definition
 
 CREATE TABLE public."Prison" (
-	"IdPenitentiary" int4 NOT NULL,
+	"idPrison" int4 NOT NULL,
 	"PenitentiaryName" varchar(30) NOT NULL,
 	"City" varchar(30) NOT NULL,
 	"Street" varchar(60) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
 	"ApartmentNr" varchar(5) NULL,
-	CONSTRAINT "Prison_pkey" PRIMARY KEY ("IdPenitentiary")
+	CONSTRAINT "Prison_pkey" PRIMARY KEY ("idPrison")
 );
 
 
@@ -52,9 +52,9 @@ CREATE TABLE public."AdministrativeEmployee" (
 	"PESEL" varchar(11) NOT NULL CHECK (LENGTH("PESEL") = 11),
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
-	"IdPenitentiary" int4 NOT NULL,
+	"idPrison" int4 NOT NULL,
 	CONSTRAINT "AdministrativeEmployee_pkey" PRIMARY KEY ("IdEmployee"),
-	CONSTRAINT "FK_AdministrativeEmployee.IdPenitentiary" FOREIGN KEY ("IdPenitentiary") REFERENCES public."Prison"("IdPenitentiary")
+	CONSTRAINT "FK_AdministrativeEmployee.idPrison" FOREIGN KEY ("idPrison") REFERENCES public."Prison"("idPrison")
 );
 
 
@@ -65,9 +65,9 @@ CREATE TABLE public."Building" (
 	"City" varchar(30) NOT NULL,
 	"Street" varchar(60) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
-	"IdPenitentiary" int4 NOT NULL,
+	"idPrison" int4 NOT NULL,
 	CONSTRAINT "Building_pkey" PRIMARY KEY ("IdBuilding"),
-	CONSTRAINT "FK_Building.IdPenitentiary" FOREIGN KEY ("IdPenitentiary") REFERENCES public."Prison"("IdPenitentiary")
+	CONSTRAINT "FK_Building.idPrison" FOREIGN KEY ("idPrison") REFERENCES public."Prison"("idPrison")
 );
 
 
@@ -79,9 +79,9 @@ CREATE TABLE public."Guard" (
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
 	"Rank" varchar(30) NULL,
-	"IdPenitentiary" int4 NOT NULL,
+	"idPrison" int4 NOT NULL,
 	CONSTRAINT "Guard_pkey" PRIMARY KEY ("IdGuard"),
-	CONSTRAINT "FK_Guard.IdPenitentiary" FOREIGN KEY ("IdPenitentiary") REFERENCES public."Prison"("IdPenitentiary")
+	CONSTRAINT "FK_Guard.idPrison" FOREIGN KEY ("idPrison") REFERENCES public."Prison"("idPrison")
 );
 
 
