@@ -490,7 +490,7 @@ def create_cell_types():
 
 
 @db_session
-def create_blocks(num_blocks_per_prison=15):
+def create_blocks(num_blocks_per_prison=10):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Block.")
