@@ -1,5 +1,5 @@
 import datetime
-from datetime import date, timedelta, time
+from datetime import date, timedelta
 import random
 from faker import *
 from entities import *
@@ -314,12 +314,31 @@ def create_guards(num_guards_per_block=20):
         Guard(**guard_data)
 
 
+# @db_session
+# def create_contact_persons(num_contact_persons_per_prisoner=1):
+#     prisoners = Prisoner.select()
+#
+#     contact_persons_count = int(len(prisoners) * num_contact_persons_per_prisoner)
+#     for i in range(1, 1 + contact_persons_count):
+#         contact_person_data = {
+#             'id_contact_person': i,
+#             'name': fake.first_name(),
+#             'surname': fake.last_name(),
+#         }
+#
+#         probability = 0.8
+#         if random.random() < probability:
+#             contact_person_data['phone_nr'] = fake.phone_number()
+#         if random.random() < probability:
+#             contact_person_data['kinship'] = random.choice(KINSHIPS)
+#
+#         ContactPerson(**contact_person_data)
+
 @db_session
-def create_contact_persons(num_contact_persons_per_prisoner=1):
+def create_contact_persons(num_contact_persons=1000):  # associate with prisoner
     prisoners = Prisoner.select()
 
-    contact_persons_count = int(len(prisoners) * num_contact_persons_per_prisoner)
-    for i in range(1, 1 + contact_persons_count):
+    for i in range(1, 1 + num_contact_persons):
         contact_person_data = {
             'id_contact_person': i,
             'name': fake.first_name(),
@@ -396,7 +415,7 @@ def create_prisons(num_prisons=50):
 
 
 @db_session
-def create_buildings(num_buildings_per_prison=100):
+def create_buildings(num_buildings_per_prison=5):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
@@ -457,7 +476,7 @@ def create_cell_types():
 
 
 @db_session
-def create_blocks(num_blocks_per_prison=100):
+def create_blocks(num_blocks_per_prison=10):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Block.")
