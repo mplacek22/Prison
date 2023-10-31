@@ -107,11 +107,14 @@ def create_administrative_employees(num_admins_per_prison=15):
 
     admin_count = int(len(prison_ids) * num_admins_per_prison)
     for i in range(1, admin_count + 1):
+        pesel = fake.pesel()
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
         admin_data = {
             'id_employee': i,
-            'pesel': fake.pesel(),
-            'name': fake.first_name(),
-            'surname': fake.last_name(),
+            'pesel': pesel,
+            'name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'surname': fake.last_name_female() if is_female else fake.last_name_male(),
             'id_prison': random.choice(prison_ids)
         }
         AdministrativeEmployee(**admin_data)
@@ -120,11 +123,14 @@ def create_administrative_employees(num_admins_per_prison=15):
 @db_session
 def create_doctors(num_doctors=200):
     for i in range(1, 1 + num_doctors):
+        pesel = fake.pesel()
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
         doctor_data = {
             'id_doctor': i,
-            'pesel': fake.pesel(),
-            'name': fake.first_name(),
-            'surname': fake.last_name(),
+            'pesel': pesel,
+            'name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'surname': fake.last_name_female() if is_female else fake.last_name_male(),
             'specialization': random.choice(SPECIALIZATIONS)
         }
         Doctor(**doctor_data)
@@ -351,62 +357,53 @@ def create_guards(num_guards_per_block=20):
         Guard(**guard_data)
 
 
-@db_session
-def create_contact_persons(num_contact_persons_per_prisoner=1):
-    prisoners = Prisoner.select()
+def create_contact_person():
+    contact_person_data = {
+        'id_contact_person': len(ContactPerson.select()) + 1,
+        'name': fake.first_name(),
+        'surname': fake.last_name(),
+    }
 
-    contact_persons_count = int(len(prisoners) * num_contact_persons_per_prisoner)
-    for i in range(1, 1 + contact_persons_count):
-        contact_person_data = {
-            'id_contact_person': i,
-            'name': fake.first_name(),
-            'surname': fake.last_name(),
-        }
+    probability = 0.8
+    if random.random() < probability:
+        contact_person_data['phone_nr'] = fake.phone_number()
+    if random.random() < probability:
+        contact_person_data['kinship'] = random.choice(KINSHIPS)
 
-        probability = 0.8
-        if random.random() < probability:
-            contact_person_data['phone_nr'] = fake.phone_number()
-        if random.random() < probability:
-            contact_person_data['kinship'] = random.choice(KINSHIPS)
-
-        ContactPerson(**contact_person_data)
+    return ContactPerson(**contact_person_data)
 
 
 @db_session
-def create_prisoners(num_prisoners_per_prison=2000):
+def create_prisoners(num_prisoners_per_prison=200):
     prisons = Prison.select()
 
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Prisoner.")
 
-    cells = Cell.select()
-    cell_ids = [cell.id_cell for cell in cells]
-
-    contact_persons = ContactPerson.select()
-    contact_person_ids = [person.id_contact_person for person in contact_persons]
+    cell_ids = select(cell.id_cell for cell in Cell)[:]
 
     prisoners_count = int(len(prisons) * num_prisoners_per_prison)
     start_id = len(Prisoner.select()) + 1
     for i in range(start_id, start_id + prisoners_count):
-
         pesel = fake.pesel()
-        last_digit = int(pesel[-1])
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
         probability = 0.8
 
         prisoner_data = {
             'id_prisoner': i,
             'pesel': pesel,
-            'first_name': fake.first_name(),
-            'last_name': fake.last_name(),
+            'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'last_name': fake.last_name_female() if is_female else fake.last_name_male(),
             'admission_date': fake.date_time_between(start_date=datetime(year=1960, month=1, day=1),
                                                      end_date=datetime(year=2023, month=6, day=30)),
-            'id_cell': random.choice(cell_ids),
-            'sex': 'F' if last_digit % 2 == 0 else 'M',
-            'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else ''
+            'id_cell': random.choice(cell_ids),  # TODO: check if cell is not full
+            'sex': 'F' if is_female else 'M',
+            'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else None
         }
 
         if random.random() < probability:
-            prisoner_data['id_contact_person'] = random.choice(contact_person_ids)
+            prisoner_data['id_contact_person'] = create_contact_person().id_contact_person
         if random.random() < probability:
             prisoner_data['height'] = random.randint(150, 210)
 
@@ -414,7 +411,7 @@ def create_prisoners(num_prisoners_per_prison=2000):
 
 
 @db_session
-def create_prisons(num_prisons=50):
+def create_prisons(num_prisons=30):
     prisons = Prison.select()
 
     probability = 0.8
@@ -456,7 +453,7 @@ def create_buildings(num_additional_building_per_prison=3):
 @db_session
 def create_cells(num_cells_per_block=10):
     cell_types = CellType.select()[:]
-    block_ids = [block.id_block for block in Block]
+    block_ids = select(block.id_block for block in Block)[:]
 
     if len(block_ids) == 0:
         raise Exception("No Blocks in the database. Can't create a Cell.")
@@ -493,7 +490,7 @@ def create_cell_types():
 
 
 @db_session
-def create_blocks(num_blocks_per_prison=20):
+def create_blocks(num_blocks_per_prison=15):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Block.")
@@ -515,7 +512,6 @@ def create_blocks(num_blocks_per_prison=20):
 
 def populate_db():
     create_cell_types()
-    create_contact_persons()
     create_doctors()
     create_prisons()
     create_administrative_employees()

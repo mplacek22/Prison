@@ -144,7 +144,7 @@ class Prisoner(db.Entity):
     id_cell = Required(Cell, column="IdCell")
     id_contact_person = Optional(ContactPerson, column="IdContactPerson")
     height = Optional(float, column="Height")
-    blood_group = Optional(str, column="BloodGroup")
+    blood_group = Optional(str, column="BloodGroup", nullable=True)
     sex = Required(str, column="Sex")
     sentences = Set("Sentence")
     visits = Set("Visit")
