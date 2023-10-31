@@ -259,7 +259,7 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
     if len(Duty.select()) != 0:
         raise Exception("Duties already created")
 
-    duty_id = 0
+    duty_id = 1
     duration = timedelta(hours=8)
 
     prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
@@ -297,7 +297,6 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
                 GuardDuty(**guard_duty_data)
                 available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
                 n -= 1
-            duty_id += 1
         start_datetime += duration
 
 
