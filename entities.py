@@ -12,14 +12,30 @@ class CellType(db.Entity):
     cells = Set("Cell")
 
 
+# Define the "Rank" entity
+class Rank(db.Entity):
+    _table_ = "Rank"
+    id_rank = PrimaryKey(int, column="IdRank")
+    rank = Required(str, column="Rank")
+    guards = Set("Guard")
+
+
+# Define the "Specialization" entity
+class Specialization(db.Entity):
+    _table_ = "Specialization"
+    id_specialization = PrimaryKey(int, column="IdSpecialization")
+    specialization = Required(str, column="Specialization")
+    doctors = Set("Doctor")
+
+
 # Define the "ContactPerson" entity
 class ContactPerson(db.Entity):
     _table_ = "ContactPerson"
     id_contact_person = PrimaryKey(int, column="IdContactPerson")
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
-    kinship = Optional(str, column="Kinship")
-    phone_nr = Optional(str, column="PhoneNr")
+    kinship = Optional(str, column="Kinship", nullable=True)
+    phone_nr = Optional(str, column="PhoneNr", nullable=True)
     prisoners = Set("Prisoner")
 
 
@@ -30,7 +46,7 @@ class Doctor(db.Entity):
     pesel = Required(str, column="PESEL")
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
-    specialization = Required(str, column="Specialization")
+    id_specialization = Required(Specialization, column="IdSpecialization")
     users = Set("User")
     examinations = Set("Examination")
 
@@ -43,7 +59,7 @@ class Prison(db.Entity):
     city = Required(str, column="City")
     street = Required(str, column="Street")
     building_nr = Required(str, column="BuildingNr")
-    apartment_nr = Optional(str, column="ApartmentNr")
+    apartment_nr = Optional(str, column="ApartmentNr", nullable=True)
     administrative_employees = Set("AdministrativeEmployee")
     buildings = Set("Building")
     guards = Set("Guard")
@@ -78,7 +94,7 @@ class Guard(db.Entity):
     pesel = Required(str, column="PESEL")
     name = Required(str, column="Name")
     surname = Required(str, column="Surname")
-    rank = Optional(str, column="Rank")
+    id_rank = Optional(Rank, column="IdRank")
     id_prison = Required(Prison, column="IdPrison")
     users = Set("User")
     duties = Set("GuardDuty")

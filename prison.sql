@@ -7,6 +7,24 @@ CREATE TABLE public."CellType" (
 );
 
 
+-- public."Rank" definition
+
+CREATE TABLE public."Rank" (
+    "IdRank" int4 NOT NULL,
+    "Rank" varchar(30) NOT NULL,
+    CONSTRAINT "Rank_pkey" PRIMARY KEY ("IdRank")
+);
+
+
+-- public."Specialization" definition
+
+CREATE TABLE public."Specialization" (
+    "IdSpecialization" int4 NOT NULL,
+    "Specialization" varchar(30) NOT NULL,
+    CONSTRAINT "Specialization_pkey" PRIMARY KEY ("IdSpecialization")
+);
+
+
 -- public."ContactPerson" definition
 
 CREATE TABLE public."ContactPerson" (
@@ -27,8 +45,10 @@ CREATE TABLE public."Doctor" (
 	"PESEL" varchar(11) NOT NULL,
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
-	"Specialization" varchar(30) NOT NULL,
-	CONSTRAINT "Doctor_pkey" PRIMARY KEY ("IdDoctor")
+	"IdSpecialization" int4 NOT NULL,
+	CONSTRAINT "Doctor_pkey" PRIMARY KEY ("IdDoctor"),
+	CONSTRAINT "FK_Doctor.IdSpecialization" FOREIGN KEY ("IdSpecialization")
+	REFERENCES public."Specialization"("IdSpecialization")
 );
 
 
@@ -78,10 +98,11 @@ CREATE TABLE public."Guard" (
 	"PESEL" varchar(11) NOT NULL CHECK(Length("PESEL") = 11),
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
-	"Rank" varchar(30) NULL,
+	"IdRank" int4 NULL,
 	"IdPrison" int4 NOT NULL,
 	CONSTRAINT "Guard_pkey" PRIMARY KEY ("IdGuard"),
-	CONSTRAINT "FK_Guard.IdPrison" FOREIGN KEY ("IdPrison") REFERENCES public."Prison"("IdPrison")
+	CONSTRAINT "FK_Guard.IdPrison" FOREIGN KEY ("IdPrison") REFERENCES public."Prison"("IdPrison"),
+	CONSTRAINT "FK_Guard.IdRank" FOREIGN KEY ("IdRank") REFERENCES public."Rank"("IdRank")
 );
 
 
