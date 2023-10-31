@@ -21,8 +21,9 @@ Iza:
 * straznik - done
 * typy celi - done
 
-cell_type -> int
-blocks per prison
-cells per block
-zamienić print na raise exception
-time object
+-------------------------
+* cell_type -> int - done
+* blocks per prison - done
+* cells per block - done
+* zamienić print na raise exception
+* time object

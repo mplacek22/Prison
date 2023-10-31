@@ -100,12 +100,13 @@ BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
 
 @db_session
-def create_administrative_employees(num_admins=500):
+def create_administrative_employees(num_admins_per_prison=15):
     prison_ids = select(p.id_prison for p in Prison)[:]
-    if not prison_ids:
-        raise Exception("No Prisons in the database. Can't create AdministrativeEmployee.")
+    if len(prison_ids) == 0:
+        raise Exception("No Prisons in the database. Can't create an AdministrativeEmployee.")
 
-    for i in range(1, num_admins + 1):
+    admin_count = int(len(prison_ids) * num_admins_per_prison)
+    for i in range(1, admin_count + 1):
         admin_data = {
             'id_employee': i,
             'pesel': fake.pesel(),
@@ -326,14 +327,15 @@ def create_examinations(num_examinations_per_prisoner=5):
 
 
 @db_session
-def create_guards():
+def create_guards(num_guards_per_block=20):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Guard.")
 
     prison_ids = [prison.id_prison for prison in prisons]
-    num_guards = len([b for b in Block.select()]) * 15
-    for i in range(1, 1 + num_guards):
+
+    guards_count = int(len(Block.select()) * num_guards_per_block)
+    for i in range(1, 1 + guards_count):
         guard_data = {
             'id_guard': i,
             'pesel': fake.pesel(),
@@ -350,10 +352,11 @@ def create_guards():
 
 
 @db_session
-def create_contact_persons(num_contact_persons=1000):  # associate with prisoner
+def create_contact_persons(num_contact_persons_per_prisoner=1):
     prisoners = Prisoner.select()
 
-    for i in range(1, 1 + num_contact_persons):
+    contact_persons_count = int(len(prisoners) * num_contact_persons_per_prisoner)
+    for i in range(1, 1 + contact_persons_count):
         contact_person_data = {
             'id_contact_person': i,
             'name': fake.first_name(),
@@ -370,7 +373,7 @@ def create_contact_persons(num_contact_persons=1000):  # associate with prisoner
 
 
 @db_session
-def create_prisoners(num_prisoners=2000):
+def create_prisoners(num_prisoners_per_prison=2000):
     prisons = Prison.select()
 
     if len(prisons) == 0:
@@ -382,8 +385,9 @@ def create_prisoners(num_prisoners=2000):
     contact_persons = ContactPerson.select()
     contact_person_ids = [person.id_contact_person for person in contact_persons]
 
+    prisoners_count = int(len(prisons) * num_prisoners_per_prison)
     start_id = len(Prisoner.select()) + 1
-    for i in range(start_id, start_id + num_prisoners):
+    for i in range(start_id, start_id + prisoners_count):
 
         pesel = fake.pesel()
         last_digit = int(pesel[-1])
@@ -430,15 +434,13 @@ def create_prisons(num_prisons=50):
 
 @db_session
 def create_buildings(num_additional_building_per_prison=3):
-    prisons = Prison.select()
-    if len(prisons) == 0:
+    prison_ids = select(p.id_prison for p in Prison)[:]
+    if len(prison_ids) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
 
-    prison_ids = [prison.id_prison for prison in prisons]
-
-    additional_building_count = int(len(prisons) * num_additional_building_per_prison)
+    additional_buildings_count = int(len(prison_ids) * num_additional_building_per_prison)
     building_id = 1
-    for prison_id in prison_ids + random.choices(prison_ids, k=additional_building_count):
+    for prison_id in prison_ids + random.choices(prison_ids, k=additional_buildings_count):
         building_data = {
             'id_building': building_id,
             'city': fake.city(),
@@ -452,24 +454,25 @@ def create_buildings(num_additional_building_per_prison=3):
 
 
 @db_session
-def create_cells(num_cells=5000):  # cells per block
-    prisons = Prison.select()
-    if len(prisons) == 0:
-        raise Exception("No Prisons in the database. Can't create a Cell.")
+def create_cells(num_cells_per_block=10):
+    cell_types = CellType.select()[:]
+    block_ids = [block.id_block for block in Block]
 
-    cell_types = CellType.select()
-    cell_type_ids = [cell_type.id_cell_type for cell_type in cell_types]
+    if len(block_ids) == 0:
+        raise Exception("No Blocks in the database. Can't create a Cell.")
 
-    blocks = Block.select()
-    block_ids = [block.id_block for block in blocks]
+    if len(cell_types) == 0:
+        raise Exception("No CellTypes in the database. Can't create a Cell.")
 
+    cells_count = int(len(block_ids) * num_cells_per_block)
     start_id = len(Cell.select()) + 1
-    for i in range(start_id, start_id + num_cells):
+    for i in range(start_id, start_id + cells_count):
+        cell_type = random.choice(cell_types)
         cell_data = {
             'id_cell': i,
             'cell_nr': i,
-            'id_cell_type': random.choice(cell_type_ids),
-            'cell_capacity': random.randint(1, 10),
+            'id_cell_type': cell_type.id_cell_type,
+            'cell_capacity': random.randint(1, 10) if cell_type != 'izolacyjna' else 1,
             'id_block': random.choice(block_ids),
         }
 
@@ -479,9 +482,9 @@ def create_cells(num_cells=5000):  # cells per block
 @db_session
 def create_cell_types():
     cell_type = {
-        '1': 'male',
-        '2': 'female',
-        '3': 'separate'
+        1: 'męska',
+        2: 'żeńska',
+        3: 'izolacyjna'
     }
 
     for cell_type_id, cell_type_name in cell_type.items():
@@ -490,17 +493,19 @@ def create_cell_types():
 
 
 @db_session
-def create_blocks(num_block_per_building=2):  # blocks per prison
+def create_blocks(num_blocks_per_prison=20):
+    prisons = Prison.select()
+    if len(prisons) == 0:
+        raise Exception("No Prisons in the database. Can't create a Block.")
+
     buildings = Building.select()
-    if len(buildings) == 0:
-        raise Exception("No Buildings in the database. Can't create a Block.")
-
     building_ids = [building.id_building for building in buildings]
-    block_count = int(len(building_ids) * num_block_per_building)
 
-    for block_id in range(1, block_count + 1):
+    blocks_count = int(len(prisons) * num_blocks_per_prison)
+    start_id = len(Block.select()) + 1
+    for i in range(start_id, start_id + blocks_count):
         block_data = {
-            'id_block': block_id,
+            'id_block': i,
             'block_name': random.choice(BLOCK_NAMES),
             'id_building': random.choice(building_ids),
         }
