@@ -130,7 +130,7 @@ def create_administrative_employees(num_admins_per_prison=15):
 
 
 @db_session
-def create_doctors(num_doctors=200):
+def create_doctors(num_doctors=100):
     specialization_ids = select(s.id_specialization for s in Specialization)[:]
 
     if len(specialization_ids) == 0:
@@ -256,7 +256,7 @@ def create_visit(num_visits_per_prisoner=5):
 
 
 @db_session
-def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1, hour=6, minute=0, second=0),
+def create_duties_with_guards(start_datetime=datetime(year=2023, month=1, day=1, hour=6, minute=0, second=0),
                               end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
     blocks = Block.select()
     guards = Guard.select()
@@ -376,7 +376,7 @@ def create_guard(guard_id, id_prison):
 
 
 @db_session
-def create_guards(num_mandatory_guards_per_block=5, num_additional_guards_per_block=15):
+def create_guards(num_mandatory_guards_per_block=5, num_additional_guards_per_block=10):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Guard.")
@@ -455,7 +455,7 @@ def create_prisoners(num_prisoners_per_prison=300):
 
 
 @db_session
-def create_prisons(num_prisons=40):
+def create_prisons(num_prisons=30):
     prisons = Prison.select()
 
     probability = 0.8
@@ -543,7 +543,7 @@ def create_specializations():
 
 
 @db_session
-def create_blocks(num_blocks_per_prison=10):
+def create_blocks(num_blocks_per_prison=8):
     prisons = Prison.select()
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Block.")
