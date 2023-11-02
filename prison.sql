@@ -1,7 +1,7 @@
 -- public."CellType" definition
 
 CREATE TABLE public."CellType" (
-	"IdCellType" int4 NOT NULL,
+	"IdCellType" SERIAL NOT NULL,
 	"CellType" varchar(15) NOT NULL,
 	CONSTRAINT "CellType_pkey" PRIMARY KEY ("IdCellType")
 );
@@ -10,7 +10,7 @@ CREATE TABLE public."CellType" (
 -- public."Rank" definition
 
 CREATE TABLE public."Rank" (
-    "IdRank" int4 NOT NULL,
+    "IdRank" SERIAL NOT NULL,
     "Rank" varchar(30) NOT NULL,
     CONSTRAINT "Rank_pkey" PRIMARY KEY ("IdRank")
 );
@@ -19,7 +19,7 @@ CREATE TABLE public."Rank" (
 -- public."Specialization" definition
 
 CREATE TABLE public."Specialization" (
-    "IdSpecialization" int4 NOT NULL,
+    "IdSpecialization" SERIAL NOT NULL,
     "Specialization" varchar(30) NOT NULL,
     CONSTRAINT "Specialization_pkey" PRIMARY KEY ("IdSpecialization")
 );
@@ -28,7 +28,7 @@ CREATE TABLE public."Specialization" (
 -- public."ContactPerson" definition
 
 CREATE TABLE public."ContactPerson" (
-	"IdContactPerson" int4 NOT NULL,
+	"IdContactPerson" SERIAL NOT NULL,
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
 	"Kinship" varchar(30) NULL,
@@ -41,7 +41,7 @@ CREATE TABLE public."ContactPerson" (
 
 
 CREATE TABLE public."Doctor" (
-	"IdDoctor" int4 NOT NULL,
+	"IdDoctor" SERIAL NOT NULL,
 	"PESEL" varchar(11) NOT NULL,
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE public."Doctor" (
 -- public."Prison" definition
 
 CREATE TABLE public."Prison" (
-	"IdPrison" int4 NOT NULL,
+	"IdPrison" SERIAL NOT NULL,
 	"PenitentiaryName" varchar(30) NOT NULL,
 	"City" varchar(30) NOT NULL,
 	"Street" varchar(60) NOT NULL,
@@ -68,7 +68,7 @@ CREATE TABLE public."Prison" (
 -- public."AdministrativeEmployee" definition
 
 CREATE TABLE public."AdministrativeEmployee" (
-	"IdEmployee" int4 NOT NULL,
+	"IdEmployee" SERIAL NOT NULL,
 	"PESEL" varchar(11) NOT NULL CHECK (LENGTH("PESEL") = 11),
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE public."AdministrativeEmployee" (
 -- public."Building" definition
 
 CREATE TABLE public."Building" (
-	"IdBuilding" int4 NOT NULL,
+	"IdBuilding" SERIAL NOT NULL,
 	"City" varchar(30) NOT NULL,
 	"Street" varchar(60) NOT NULL,
 	"BuildingNr" varchar(5) NOT NULL,
@@ -94,7 +94,7 @@ CREATE TABLE public."Building" (
 -- public."Guard" definition
 
 CREATE TABLE public."Guard" (
-	"IdGuard" int4 NOT NULL,
+	"IdGuard" SERIAL NOT NULL,
 	"PESEL" varchar(11) NOT NULL CHECK(Length("PESEL") = 11),
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
@@ -126,7 +126,7 @@ CREATE TABLE public."User" (
 -- public."Block" definition
 
 CREATE TABLE public."Block" (
-	"IdBlok" int4 NOT NULL,
+	"IdBlok" SERIAL NOT NULL,
 	"BlockName" varchar(30) NOT NULL,
 	"IdBuilding" int4 NOT NULL,
 	CONSTRAINT "Block_pkey" PRIMARY KEY ("IdBlok"),
@@ -137,7 +137,7 @@ CREATE TABLE public."Block" (
 -- public."Cell" definition
 
 CREATE TABLE public."Cell" (
-	"IdCell" int4 NOT NULL,
+	"IdCell" SERIAL NOT NULL,
 	"CellNr" int4 NOT NULL,
 	"IdCellType" int4 NOT NULL,
 	"CellCapacity" int2 NOT NULL CHECK ("CellCapacity" > 0),
@@ -151,7 +151,7 @@ CREATE TABLE public."Cell" (
 -- public."Duty" definition
 
 CREATE TABLE public."Duty" (
-	"IdDuty" int4 NOT NULL,
+	"IdDuty" SERIAL NOT NULL,
 	"StartDate" timestamp NOT NULL,
 	"EndDate" timestamp NOT NULL CHECK ("EndDate" > "StartDate"),
 	"IdBlock" int4 NOT NULL,
@@ -176,7 +176,7 @@ CREATE TYPE sex AS ENUM ('F', 'M');
 -- public."Prisoner" definition
 
 CREATE TABLE public."Prisoner" (
-	"IdPrisoner" int4 NOT NULL,
+	"IdPrisoner" SERIAL NOT NULL,
 	"PESEL" varchar(11) NOT NULL CHECK (LENGTH("PESEL") = 11),
 	"FirstName" varchar(30) NOT NULL,
 	"LastName" varchar(30) NOT NULL,
@@ -195,7 +195,7 @@ CREATE TABLE public."Prisoner" (
 -- public."Sentence" definition
 
 CREATE TABLE public."Sentence" (
-	"IdSentence" int4 NOT NULL,
+	"IdSentence" SERIAL NOT NULL,
 	"Article" varchar(10) NOT NULL,
 	"Paragraph" int2 NOT NULL,
 	"StayDurationDays" int2 NOT NULL CHECK ("StayDurationDays" > 0),
@@ -208,7 +208,7 @@ CREATE TABLE public."Sentence" (
 -- public."Visit" definition
 
 CREATE TABLE public."Visit" (
-	"IdVisit" int4 NOT NULL,
+	"IdVisit" SERIAL NOT NULL,
 	"IdPrisoner" int4 NOT NULL,
 	"StartDate" timestamp NOT NULL,
 	"EndDate" timestamp NOT NULL CHECK("EndDate" > "StartDate"),
@@ -222,7 +222,7 @@ CREATE TABLE public."Visit" (
 -- public."Examination" definition
 
 CREATE TABLE public."Examination" (
-	"IdExamination" int4 NOT NULL,
+	"IdExamination" SERIAL NOT NULL,
 	"IdDoctor" int4 NOT NULL,
 	"IdPrisoner" int4 NOT NULL,
 	"ExaminationType" varchar(50) NOT NULL,
@@ -237,7 +237,7 @@ CREATE TABLE public."Examination" (
 -- public."Furlough" definition
 
 CREATE TABLE public."Furlough" (
-	"IdFurlough" int4 NOT NULL,
+	"IdFurlough" SERIAL NOT NULL,
 	"IdPrisoner" int4 NOT NULL,
 	"StartDate" timestamp NOT NULL,
 	"EndDate" timestamp NOT NULL CHECK ("EndDate" > "StartDate"),

@@ -122,7 +122,6 @@ def create_administrative_employees(num_admins_per_prison=15):
         sex_digit = int(pesel[-2])
         is_female = sex_digit % 2 == 0
         admin_data = {
-            'id_employee': i,
             'pesel': pesel,
             'name': fake.first_name_female() if is_female else fake.first_name_male(),
             'surname': fake.last_name_female() if is_female else fake.last_name_male(),
@@ -143,7 +142,6 @@ def create_doctors(num_doctors=100):
         sex_digit = int(pesel[-2])
         is_female = sex_digit % 2 == 0
         doctor_data = {
-            'id_doctor': i,
             'pesel': pesel,
             'name': fake.first_name_female() if is_female else fake.first_name_male(),
             'surname': fake.last_name_female() if is_female else fake.last_name_male(),
@@ -187,7 +185,6 @@ def create_furloughs(num_furloughs_per_prisoner=2):
         end_datetime = datetime.combine(start_date + timedelta(days=random.randint(1, 14)), end_time)
 
         furlough_data = {
-            'id_furlough': furlough_id,
             'id_prisoner': random.choice(prisoner_ids),
             'start_date': start_datetime,
             'end_date': end_datetime
@@ -205,11 +202,11 @@ def create_visit(num_visits_per_prisoner=5):
 
     visits_count = int(len(prisoner_ids) * num_visits_per_prisoner)
 
-    for visit_id in range(1, visits_count + 1):
+    for visit in range(visits_count):
         start_date = fake.date_between(start_date=date(year=2020, month=1, day=1),
                                        end_date=date(year=2023, month=6, day=30))
         start_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
-                                   second=random.randint(0, 59))
+                          second=random.randint(0, 59))
 
         duration = timedelta(seconds=random.randint(15 * 60, 4 * 60 * 60))
 
@@ -217,7 +214,6 @@ def create_visit(num_visits_per_prisoner=5):
         end_datetime = start_datetime + duration
 
         visit_data = {
-            'id_visit': visit_id,
             'id_prisoner': random.choice(prisoner_ids),
             'start_date': start_datetime,
             'end_date': end_datetime,
@@ -226,6 +222,7 @@ def create_visit(num_visits_per_prisoner=5):
         }
 
         Visit(**visit_data)
+
 
 @db_session
 def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1, hour=6, minute=0, second=0),
@@ -246,7 +243,6 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
 
         duties_guards = []
 
-        duty_id = 1
         duration = timedelta(hours=8)
 
         prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
@@ -261,14 +257,12 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
                 duties = []
                 for block in p_blocks:
                     duty_data = {
-                        'id_duty': duty_id,
                         'block': block,
                         'start_date': start_datetime,
                         'end_date': start_datetime + duration
                     }
 
                     duties.append(Duty(**duty_data))
-                    duty_id += 1
 
                 available_guards = prisons_guards[prison]
                 n = len(available_guards)
@@ -290,8 +284,8 @@ def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1,
 def create_guard_duty(duties_guards):
     for duty, guard in duties_guards:
         guard_duty_data = {
-            'duty': duty.id_duty,
-            'guard': guard.id_guard
+            'duty': duty,
+            'guard': guard
         }
         GuardDuty(**guard_duty_data)
 
@@ -309,7 +303,7 @@ def create_examinations(num_examinations_per_prisoner=5):
 
     examinations_count = int(len(prisoner_ids) * num_examinations_per_prisoner)
 
-    for examination_id in range(1, examinations_count + 1):
+    for examination in range(examinations_count):
         doctor_id = random.choice(doctor_ids)
         prisoner_id = random.choice(prisoner_ids)
         examination_date = fake.date_time_between(start_date=datetime(year=2020, month=1, day=1),
@@ -318,7 +312,6 @@ def create_examinations(num_examinations_per_prisoner=5):
         name, result = random.choice(EXAMINATIONS)
 
         examination_data = {
-            'id_examination': examination_id,
             'id_prisoner': prisoner_id,
             'examination_date': examination_date,
             'id_doctor': doctor_id,
@@ -329,7 +322,7 @@ def create_examinations(num_examinations_per_prisoner=5):
         Examination(**examination_data)
 
 
-def create_guard(guard_id, id_prison):
+def create_guard(id_prison):
     rank_ids = select(r.id_rank for r in Rank)[:]
 
     if len(rank_ids) == 0:
@@ -346,7 +339,6 @@ def create_guard(guard_id, id_prison):
 
     probability = 0.9
     guard_data = {
-        'id_guard': guard_id,
         'pesel': pesel,
         'name': name,
         'surname': surname,
@@ -369,19 +361,18 @@ def create_guards(num_mandatory_guards_per_block=5, num_additional_guards_per_bl
     additional_guards_count = int(len(Block.select()) * num_additional_guards_per_block)
     for prison in prisons:
         for _ in range(num_mandatory_guards_per_block * sum(building.blocks.count() for building in prison.buildings)):
-            create_guard(guard_id, prison.id_prison)
+            create_guard(prison.id_prison)
             guard_id += 1
     for i in range(guard_id, guard_id + additional_guards_count):
-        create_guard(i, random.choice(prison_ids))
+        create_guard(random.choice(prison_ids))
 
 
 def create_contact_persons(num_contact_persons):
     probability = 0.8
     contact_persons = deque()
 
-    for i in range(1, num_contact_persons + 1):
+    for i in range(num_contact_persons):
         contact_person_data = {
-            'id_contact_person': i,
             'name': fake.first_name(),
             'surname': fake.last_name(),
             'phone_nr': fake.phone_number() if random.random() < probability else None,
@@ -415,7 +406,7 @@ def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_pe
     prisoners_sentences = []
 
     with db_session:
-        for i in range(1, prisoners_count + 1):
+        for _ in range(prisoners_count):
             date_of_birth = fake.date_of_birth(minimum_age=18, maximum_age=80)
             pesel = fake.pesel(date_of_birth=date_of_birth)
             sex_digit = int(pesel[-2])
@@ -451,7 +442,6 @@ def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_pe
             )
 
             prisoner_data = {
-                'id_prisoner': i,
                 'pesel': pesel,
                 'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
                 'last_name': fake.last_name_female() if is_female else fake.last_name_male(),
@@ -474,32 +464,27 @@ def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_pe
 
 @db_session
 def create_sentences(prisoners_sentences):
-    sentence_id = len(Sentence.select()) + 1
 
     for prisoner, durations in prisoners_sentences:
         for duration in durations:
             sentence_data = {
-                'id_sentence': sentence_id,
-                'id_prisoner': prisoner.id_prisoner,
+                'id_prisoner': prisoner,
                 'stay_duration_days': duration,
                 'article': str(random.randint(1, 400)),
                 'paragraph': random.randint(1, 15)
             }
 
             Sentence(**sentence_data)
-            sentence_id += 1
 
 
 @db_session
-def create_prisons(num_prisons=30):
+def create_prisons(num_prisons=3):
     prisons = Prison.select()
 
     probability = 0.8
-    start_id = len(prisons) + 1
-    for i in range(start_id, start_id + num_prisons):
+    for _ in range(num_prisons):
         prison_data = {
-            'id_prison': i,
-            'penitentiary_name': f'Zakład karny nr {i}',
+            'penitentiary_name': "Więzienie " + fake.city(),
             'city': fake.city(),
             'street': fake.street_name(),
             'building_nr': fake.building_number(),
@@ -517,18 +502,15 @@ def create_buildings(num_additional_building_per_prison=5):
         raise Exception("No Prisons in the database. Can't create a Building.")
 
     additional_buildings_count = int(len(prison_ids) * num_additional_building_per_prison)
-    building_id = 1
 
     for prison_id in prison_ids + random.choices(prison_ids, k=additional_buildings_count):
         building_data = {
-            'id_building': building_id,
             'city': fake.city(),
             'street': fake.street_address(),
             'building_nr': str(random.randint(1, 50)),
             'id_prison': prison_id
         }
         Building(**building_data)
-        building_id += 1
 
 
 @db_session
@@ -543,11 +525,9 @@ def create_cells(num_cells_per_block=10):
         raise Exception("No CellTypes in the database. Can't create a Cell.")
 
     cells_count = int(len(block_ids) * num_cells_per_block)
-    start_id = len(Cell.select()) + 1
-    for i in range(start_id, start_id + cells_count):
+    for i in range(cells_count):
         cell_type = random.choice(cell_types)
         cell_data = {
-            'id_cell': i,
             'cell_nr': i,
             'id_cell_type': cell_type.id_cell_type,
             'cell_capacity': random.randint(1, 10) if cell_type != 'Izolacyjna' else 1,
@@ -559,23 +539,20 @@ def create_cells(num_cells_per_block=10):
 
 @db_session
 def create_cell_types():
-    for cell_type_id, cell_type_name in enumerate(CELL_TYPES, start=1):
-        if not select(c for c in CellType if c.id_cell_type == cell_type_id).exists():
-            CellType(id_cell_type=cell_type_id, cell_type=cell_type_name)
+    for cell_type_name in CELL_TYPES:
+        CellType(cell_type=cell_type_name)
 
 
 @db_session
 def create_ranks():
-    for rank_id, rank_name in enumerate(RANKS, start=1):
-        if not select(r for r in Rank if r.id_rank == rank_id).exists():
-            Rank(id_rank=rank_id, rank=rank_name)
+    for rank in RANKS:
+        Rank(rank=rank)
 
 
 @db_session
 def create_specializations():
-    for specialization_id, specialization_name in enumerate(SPECIALIZATIONS, start=1):
-        if not select(s for s in Specialization if s.id_specialization == specialization_id).exists():
-            Specialization(id_specialization=specialization_id, specialization=specialization_name)
+    for specialization in SPECIALIZATIONS:
+        Specialization(specialization=specialization)
 
 
 @db_session
@@ -588,10 +565,8 @@ def create_blocks(num_blocks_per_prison=8):
     building_ids = [building.id_building for building in buildings]
 
     blocks_count = int(len(prisons) * num_blocks_per_prison)
-    start_id = len(Block.select()) + 1
-    for i in range(start_id, start_id + blocks_count):
+    for i in range(blocks_count):
         block_data = {
-            'id_block': i,
             'block_name': random.choice(BLOCK_NAMES),
             'id_building': random.choice(building_ids),
         }
