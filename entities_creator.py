@@ -1,3 +1,5 @@
+from collections import deque
+from contextlib import suppress
 from datetime import date, timedelta, time
 import random
 from faker import *
@@ -164,35 +166,6 @@ def create_users():
 
 
 @db_session
-def create_sentences(num_additional_sentences_per_prisoner=0.75):
-    prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
-
-    if len(prisoner_ids) == 0:
-        raise Exception("No prisoners in database")
-
-    sentence_id = len(Sentence.select()) + 1
-    additional_sentences = int(len(prisoner_ids) * num_additional_sentences_per_prisoner)
-
-    for prisoner_id in prisoner_ids + random.choices(prisoner_ids, k=additional_sentences):
-        # 9150 days is 25 years, more is life sentence, coded as 20 000
-        duration = random.randint(1, 9200)
-        if duration > 9150:
-            duration = 20000
-
-        sentence_data = {
-            'id_sentence': sentence_id,
-            'id_prisoner': prisoner_id,
-            'stay_duration_days': duration,
-            'article': str(random.randint(1, 400)),
-            'paragraph': random.randint(1, 15)
-        }
-
-        Sentence(**sentence_data)
-
-        sentence_id += 1
-
-
-@db_session
 def create_furloughs(num_furloughs_per_prisoner=2):
     prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
 
@@ -254,64 +227,73 @@ def create_visit(num_visits_per_prisoner=5):
 
         Visit(**visit_data)
 
+@db_session
+def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1, hour=6, minute=0, second=0),
+                              end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
+    with db_session:
+        blocks = Block.select()
+        guards = Guard.select()
+        prisons = Prison.select()
+
+        if len(blocks) == 0:
+            raise Exception("No blocks in database")
+
+        if len(guards) == 0:
+            raise Exception("No guards in database")
+
+        if len(Duty.select()) != 0:
+            raise Exception("Duties already created")
+
+        duties_guards = []
+
+        duty_id = 1
+        duration = timedelta(hours=8)
+
+        prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
+        prisons_blocks = {prison: [block for building in prison.buildings for block in building.blocks]
+                          for prison in prisons}
+
+        while start_datetime < end_datetime:
+            for prison, p_blocks in prisons_blocks.items():
+                if len(p_blocks) == 0:
+                    continue
+
+                duties = []
+                for block in p_blocks:
+                    duty_data = {
+                        'id_duty': duty_id,
+                        'block': block,
+                        'start_date': start_datetime,
+                        'end_date': start_datetime + duration
+                    }
+
+                    duties.append(Duty(**duty_data))
+                    duty_id += 1
+
+                available_guards = prisons_guards[prison]
+                n = len(available_guards)
+
+                if n < len(duties):
+                    raise Exception("No guards available for duty")
+
+                guards_on_duty_count = random.randint(0, n - len(duties))
+                for duty in duties + random.choices(duties, k=guards_on_duty_count - len(duties)):
+                    idx = random.randint(0, n - 1)
+                    duties_guards.append((duty, available_guards[idx]))
+                    available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
+                    n -= 1
+            start_datetime += duration
+    create_guard_duty(duties_guards)
+
 
 @db_session
-def create_duties_with_guards(start_datetime=datetime(year=2023, month=1, day=1, hour=6, minute=0, second=0),
-                              end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
-    blocks = Block.select()
-    guards = Guard.select()
-    prisons = Prison.select()
-
-    if len(blocks) == 0:
-        raise Exception("No blocks in database")
-
-    if len(guards) == 0:
-        raise Exception("No guards in database")
-
-    if len(Duty.select()) != 0:
-        raise Exception("Duties already created")
-
-    duty_id = 1
-    duration = timedelta(hours=8)
-
-    prisons_guards = {prison: [guard for guard in prison.guards] for prison in prisons}
-    prisons_blocks = {prison: [block for building in prison.buildings for block in building.blocks]
-                      for prison in prisons}
-
-    while start_datetime < end_datetime:
-        for prison, p_blocks in prisons_blocks.items():
-            if len(p_blocks) == 0:
-                continue
-
-            duties = []
-            for block in p_blocks:
-                duty_data = {
-                    'id_duty': duty_id,
-                    'block': block,
-                    'start_date': start_datetime,
-                    'end_date': start_datetime + duration
-                }
-
-                duties.append(Duty(**duty_data))
-                duty_id += 1
-
-            available_guards = prisons_guards[prison]
-            n = len(available_guards)
-
-            if n < len(duties):
-                raise Exception("No guards available for duty")
-
-            guards_on_duty_count = random.randint(0, n - len(duties))
-            for duty in duties + random.choices(duties, k=guards_on_duty_count - len(duties)):
-                idx = random.randint(0, n - 1)
-                guard_duty_data = {
-                    'guard': available_guards[idx],
-                    'duty': duty
-                }
-                GuardDuty(**guard_duty_data)
-                available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
-                n -= 1
-        start_datetime += duration
+def create_guard_duty(duties_guards):
+    for duty, guard in duties_guards:
+        guard_duty_data = {
+            'duty': duty.id_duty,
+            'guard': guard.id_guard
+        }
+        GuardDuty(**guard_duty_data)
 
 
 @db_session
@@ -393,65 +375,119 @@ def create_guards(num_mandatory_guards_per_block=5, num_additional_guards_per_bl
         create_guard(i, random.choice(prison_ids))
 
 
-def create_contact_person(contact_person_id):
+def create_contact_persons(num_contact_persons):
     probability = 0.8
+    contact_persons = deque()
 
-    contact_person_data = {
-        'id_contact_person': contact_person_id,
-        'name': fake.first_name(),
-        'surname': fake.last_name(),
-        'phone_nr': fake.phone_number() if random.random() < probability else None,
-        'kinship': random.choice(KINSHIPS) if random.random() < probability else None
-    }
+    for i in range(1, num_contact_persons + 1):
+        contact_person_data = {
+            'id_contact_person': i,
+            'name': fake.first_name(),
+            'surname': fake.last_name(),
+            'phone_nr': fake.phone_number() if random.random() < probability else None,
+            'kinship': random.choice(KINSHIPS) if random.random() < probability else None
+        }
 
-    return ContactPerson(**contact_person_data)
+        contact_persons.append(ContactPerson(**contact_person_data))
+
+    return contact_persons
+
+
+def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_person_probability=0.8,
+                                    sentences_count_weights=(0.5, 0.2, 0.15, 0.1, 0.05)):
+    with db_session:
+        prisons = Prison.select()
+
+        if len(prisons) == 0:
+            raise Exception("No Prisons in the database. Can't create a Prisoner.")
+
+        cells = Cell.select()
+
+        cells_capacity = {cell: cell.cell_capacity for cell in cells}
+        available_male_cells = [cell for cell in cells if cell.id_cell_type.cell_type != 'Żeńska']
+        available_female_cells = [cell for cell in cells if cell.id_cell_type.cell_type != 'Męska']
+
+        prisoners_count = int(len(prisons) * num_prisoners_per_prison)
+
+        contact_persons = create_contact_persons(int(prisoners_count * has_contact_person_probability))
+    contact_persons += deque([None] * (prisoners_count - len(contact_persons)))
+    random.shuffle(contact_persons)
+    prisoners_sentences = []
+
+    with db_session:
+        for i in range(1, prisoners_count + 1):
+            date_of_birth = fake.date_of_birth(minimum_age=18, maximum_age=80)
+            pesel = fake.pesel(date_of_birth=date_of_birth)
+            sex_digit = int(pesel[-2])
+            is_female = sex_digit % 2 == 0
+            probability = 0.8
+            if is_female:
+                cell = random.choice(available_female_cells)
+            else:
+                cell = random.choice(available_male_cells)
+            cells_capacity[cell] -= 1
+            if cells_capacity[cell] == 0:
+                with suppress(ValueError):
+                    available_male_cells.remove(cell)
+                with suppress(ValueError):
+                    available_female_cells.remove(cell)
+
+            sentences_count = random.choices(range(1, len(sentences_count_weights) + 1),
+                                             weights=sentences_count_weights)[0]
+
+            sentences = []
+            for _ in range(sentences_count):
+                # 9150 days is 25 years, more is life sentence, coded as 20 000
+                duration = random.randint(1, 9200)
+                if duration > 9150:
+                    duration = 20000
+                sentences.append(duration)
+
+            sentence_time = sum(sentences)
+            admission_date = fake.date_time_between(
+                start_date=max(datetime.combine(date_of_birth + timedelta(days=365 * 17), time(hour=0, minute=0)),
+                               datetime(year=2023, month=6, day=30) - timedelta(days=sentence_time)),
+                end_date=datetime(year=2023, month=6, day=30)
+            )
+
+            prisoner_data = {
+                'id_prisoner': i,
+                'pesel': pesel,
+                'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
+                'last_name': fake.last_name_female() if is_female else fake.last_name_male(),
+                'admission_date': admission_date,
+                'id_cell': cell.id_cell,
+                'sex': 'F' if is_female else 'M',
+                'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else None
+            }
+
+            if (contact := contact_persons.popleft()) is not None:
+                prisoner_data['id_contact_person'] = contact.id_contact_person
+            if random.random() < probability:
+                prisoner_data['height'] = random.randint(150, 210)
+
+            prisoner = Prisoner(**prisoner_data)
+            prisoners_sentences.append((prisoner, sentences))
+
+    create_sentences(prisoners_sentences)
 
 
 @db_session
-def create_prisoners(num_prisoners_per_prison=300):
-    prisons = Prison.select()
+def create_sentences(prisoners_sentences):
+    sentence_id = len(Sentence.select()) + 1
 
-    if len(prisons) == 0:
-        raise Exception("No Prisons in the database. Can't create a Prisoner.")
+    for prisoner, durations in prisoners_sentences:
+        for duration in durations:
+            sentence_data = {
+                'id_sentence': sentence_id,
+                'id_prisoner': prisoner.id_prisoner,
+                'stay_duration_days': duration,
+                'article': str(random.randint(1, 400)),
+                'paragraph': random.randint(1, 15)
+            }
 
-    cells = Cell.select()
-
-    cells_capacity = {cell: cell.cell_capacity for cell in cells}
-    available_cells = [cell for cell in cells]
-
-    prisoners_count = int(len(prisons) * num_prisoners_per_prison)
-    contact_person_id = 1
-
-    for i in range(1, prisoners_count + 1):
-        pesel = fake.pesel()
-        sex_digit = int(pesel[-2])
-        is_female = sex_digit % 2 == 0
-        probability = 0.8
-
-        cell = random.choice(available_cells)
-        cells_capacity[cell] -= 1
-        if cells_capacity[cell] == 0:
-            available_cells.remove(cell)
-
-        prisoner_data = {
-            'id_prisoner': i,
-            'pesel': pesel,
-            'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
-            'last_name': fake.last_name_female() if is_female else fake.last_name_male(),
-            'admission_date': fake.date_time_between(start_date=datetime(year=1960, month=1, day=1),
-                                                     end_date=datetime(year=2023, month=6, day=30)),
-            'id_cell': cell.id_cell,
-            'sex': 'F' if is_female else 'M',
-            'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else None
-        }
-
-        if random.random() < probability:
-            prisoner_data['id_contact_person'] = create_contact_person(contact_person_id).id_contact_person
-        if random.random() < probability:
-            prisoner_data['height'] = random.randint(150, 210)
-
-        Prisoner(**prisoner_data)
-        contact_person_id += 1
+            Sentence(**sentence_data)
+            sentence_id += 1
 
 
 @db_session
@@ -463,7 +499,7 @@ def create_prisons(num_prisons=30):
     for i in range(start_id, start_id + num_prisons):
         prison_data = {
             'id_prison': i,
-            'penitentiary_name': f'Prison nr: {i}',
+            'penitentiary_name': f'Zakład karny nr {i}',
             'city': fake.city(),
             'street': fake.street_name(),
             'building_nr': fake.building_number(),
@@ -575,8 +611,7 @@ def populate_db():
     create_cells()
     create_guards()
     create_users()
-    create_prisoners()
-    create_sentences()
+    create_prisoners_with_sentences()
     create_visit()
     create_examinations()
     create_furloughs()
