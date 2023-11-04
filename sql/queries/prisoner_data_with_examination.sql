@@ -5,10 +5,13 @@ SELECT
     p."FirstName",
     p."LastName",
     p."AdmissionDate",
+    p."IdCell",
+    p."IdContactPerson",
     p."Height",
     p."BloodGroup",
     p."Sex",
     e."ExaminationDate" AS "ExaminationDate",
+    e."ExaminationType",
     e."ExaminationResult" AS "ExaminationResult"
 FROM
     public."Prisoner" p

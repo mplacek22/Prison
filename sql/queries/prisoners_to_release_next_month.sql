@@ -1,10 +1,15 @@
 -- DONE
 SELECT
-    p."IdPrisoner",
+   p."IdPrisoner",
     p."PESEL",
     p."FirstName",
     p."LastName",
     p."AdmissionDate",
+    p."IdCell",
+    p."IdContactPerson",
+    p."Height",
+    p."BloodGroup",
+    p."Sex",
     s."StayDurationDays" AS "StayDurationDays"
 FROM
     public."Prisoner" p
