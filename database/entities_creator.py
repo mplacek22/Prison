@@ -468,7 +468,7 @@ def create_sentences(prisoners_sentences):
     for prisoner, durations in prisoners_sentences:
         for duration in durations:
             sentence_data = {
-                'id_prisoner': prisoner,
+                'id_prisoner': prisoner.id_prisoner,
                 'stay_duration_days': duration,
                 'article': str(random.randint(1, 400)),
                 'paragraph': random.randint(1, 15)
