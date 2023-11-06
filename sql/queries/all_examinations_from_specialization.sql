@@ -11,4 +11,6 @@ INNER JOIN
 INNER JOIN
     public."Prisoner" p ON e."IdPrisoner" = p."IdPrisoner"
 WHERE
-    s."Specialization" = 'Kardiolog' AND p."FirstName" = 'Konrad' AND p."LastName" = 'Skutnik';
+    s."Specialization" = 'Kardiolog' AND p."FirstName" = 'Konrad' AND p."LastName" = 'Skutnik'
+ORDER BY
+    e."ExaminationDate" DESC;

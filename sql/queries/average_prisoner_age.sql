@@ -12,7 +12,7 @@ FROM
 INNER JOIN
     public."Cell" c ON p."IdCell" = c."IdCell"
 INNER JOIN
-    public."Block" b ON c."IdBlock" = b."IdBlok"
+    public."Block" b ON c."IdBlock" = b."IdBlock"
 INNER JOIN
     public."Building" bu ON b."IdBuilding" = bu."IdBuilding"
 INNER JOIN

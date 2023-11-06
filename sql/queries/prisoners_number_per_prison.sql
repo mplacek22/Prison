@@ -8,7 +8,7 @@ LEFT JOIN
 LEFT JOIN
     public."Block" b ON bu."IdBuilding" = b."IdBuilding"
 LEFT JOIN
-    public."Cell" c ON b."IdBlok" = c."IdBlock"
+    public."Cell" c ON b."IdBlock" = c."IdBlock"
 LEFT JOIN
     public."Prisoner" pr ON c."IdCell" = pr."IdCell"
 GROUP BY

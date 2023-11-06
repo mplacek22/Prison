@@ -395,6 +395,7 @@ def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_pe
         cells = Cell.select()
 
         cells_capacity = {cell: cell.cell_capacity for cell in cells}
+        cells_prisons = {cell: cell.id_block.id_building.id_prison.id_prison for cell in cells}
         available_male_cells = [cell for cell in cells if cell.id_cell_type.cell_type != 'Żeńska']
         available_female_cells = [cell for cell in cells if cell.id_cell_type.cell_type != 'Męska']
 
@@ -448,7 +449,8 @@ def create_prisoners_with_sentences(num_prisoners_per_prison=300, has_contact_pe
                 'admission_date': admission_date,
                 'id_cell': cell.id_cell,
                 'sex': 'F' if is_female else 'M',
-                'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else None
+                'blood_group': random.choice(BLOOD_GROUPS) if random.random() < probability else None,
+                'id_prison': cells_prisons[cell]
             }
 
             if (contact := contact_persons.popleft()) is not None:
@@ -479,7 +481,6 @@ def create_sentences(prisoners_sentences):
 
 @db_session
 def create_prisons(num_prisons=3):
-    prisons = Prison.select()
 
     probability = 0.8
     for _ in range(num_prisons):

@@ -18,7 +18,7 @@ JOIN
 LEFT JOIN
     public."Cell" c ON p."IdCell" = c."IdCell"
 LEFT JOIN
-    public."Block" b ON c."IdBlock" = b."IdBlok"
+    public."Block" b ON c."IdBlock" = b."IdBlock"
 LEFT JOIN
     public."Building" bu ON b."IdBuilding" = bu."IdBuilding"
 LEFT JOIN

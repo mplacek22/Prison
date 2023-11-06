@@ -63,6 +63,7 @@ class Prison(db.Entity):
     administrative_employees = Set("AdministrativeEmployee")
     buildings = Set("Building")
     guards = Set("Guard")
+    prisoners = Set("Prisoner")
 
 
 # Define the "AdministrativeEmployee" entity
@@ -113,7 +114,7 @@ class User(db.Entity):
 # Define the "Block" entity
 class Block(db.Entity):
     _table_ = "Block"
-    id_block = PrimaryKey(int, column="IdBlok", auto=True)
+    id_block = PrimaryKey(int, column="IdBlock", auto=True)
     block_name = Required(str, column="BlockName")
     id_building = Required(Building, column="IdBuilding")
     cells = Set("Cell")
@@ -162,6 +163,7 @@ class Prisoner(db.Entity):
     height = Optional(float, column="Height")
     blood_group = Optional(str, column="BloodGroup", nullable=True)
     sex = Required(str, column="Sex")
+    id_prison = Required(Prison, column="IdPrison")
     sentences = Set("Sentence")
     visits = Set("Visit")
     examinations = Set("Examination")

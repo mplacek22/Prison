@@ -126,10 +126,10 @@ CREATE TABLE public."User" (
 -- public."Block" definition
 
 CREATE TABLE public."Block" (
-	"IdBlok" SERIAL NOT NULL,
+	"IdBlock" SERIAL NOT NULL,
 	"BlockName" varchar(30) NOT NULL,
 	"IdBuilding" int4 NOT NULL,
-	CONSTRAINT "Block_pkey" PRIMARY KEY ("IdBlok"),
+	CONSTRAINT "Block_pkey" PRIMARY KEY ("IdBlock"),
 	CONSTRAINT "FK_Block.IdBuilding" FOREIGN KEY ("IdBuilding") REFERENCES public."Building"("IdBuilding")
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE public."Cell" (
 	"CellCapacity" int2 NOT NULL CHECK ("CellCapacity" > 0),
 	"IdBlock" int4 NOT NULL,
 	CONSTRAINT "Cell_pkey" PRIMARY KEY ("IdCell"),
-	CONSTRAINT "FK_Cell.IdBlock" FOREIGN KEY ("IdBlock") REFERENCES public."Block"("IdBlok"),
+	CONSTRAINT "FK_Cell.IdBlock" FOREIGN KEY ("IdBlock") REFERENCES public."Block"("IdBlock"),
 	CONSTRAINT "FK_Cell.IdCellType" FOREIGN KEY ("IdCellType") REFERENCES public."CellType"("IdCellType")
 );
 
@@ -156,7 +156,7 @@ CREATE TABLE public."Duty" (
 	"EndDate" timestamp NOT NULL CHECK ("EndDate" > "StartDate"),
 	"IdBlock" int4 NOT NULL,
 	CONSTRAINT "Duty_pkey" PRIMARY KEY ("IdDuty"),
-	CONSTRAINT "FK_Duty.IdBlock" FOREIGN KEY ("IdBlock") REFERENCES public."Block"("IdBlok")
+	CONSTRAINT "FK_Duty.IdBlock" FOREIGN KEY ("IdBlock") REFERENCES public."Block"("IdBlock")
 );
 
 
@@ -186,9 +186,11 @@ CREATE TABLE public."Prisoner" (
 	"Height" float4 NULL CHECK ("Height" > 0),
 	"BloodGroup" blood_group NULL,
 	"Sex" sex NOT NULL,
+	"IdPrison" int4 NOT NULL,
 	CONSTRAINT "Prisoner_pkey" PRIMARY KEY ("IdPrisoner"),
 	CONSTRAINT "FK_Prisoner.IdCell" FOREIGN KEY ("IdCell") REFERENCES public."Cell"("IdCell"),
-	CONSTRAINT "FK_Prisoner.IdContactPerson" FOREIGN KEY ("IdContactPerson") REFERENCES public."ContactPerson"("IdContactPerson")
+	CONSTRAINT "FK_Prisoner.IdContactPerson" FOREIGN KEY ("IdContactPerson") REFERENCES public."ContactPerson"("IdContactPerson"),
+    CONSTRAINT "FK_Prisoner.IdPrison" FOREIGN KEY ("IdPrison") REFERENCES public."Prison"("IdPrison")
 );
 
 
