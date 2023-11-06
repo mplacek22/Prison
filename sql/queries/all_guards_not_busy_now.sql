@@ -1,9 +1,7 @@
 SELECT
-    g."IdGuard",
-    g."PESEL",
     g."Name",
     g."Surname",
-    r."Rank" AS "RankName",
+    r."Rank" AS "RankName"
 FROM
     public."Guard" g
 LEFT JOIN
