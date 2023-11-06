@@ -225,7 +225,7 @@ def create_visit(num_visits_per_prisoner=5):
 
 
 @db_session
-def create_duties_with_guards(start_datetime=datetime(year=2023, month=6, day=1, hour=6, minute=0, second=0),
+def create_duties_with_guards(start_datetime=datetime(year=2023, month=1, day=1, hour=6, minute=0, second=0),
                               end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
     with db_session:
         blocks = Block.select()
@@ -484,7 +484,7 @@ def create_prisons(num_prisons=3):
     probability = 0.8
     for _ in range(num_prisons):
         prison_data = {
-            'penitentiary_name': "Więzienie " + fake.city(),
+            'penitentiary_name': "Więzienie nr: " + str(random.randint(1, 100)),
             'city': fake.city(),
             'street': fake.street_name(),
             'building_nr': fake.building_number(),
@@ -495,13 +495,13 @@ def create_prisons(num_prisons=3):
 
 
 @db_session
-def create_buildings(num_additional_building_per_prison=5):
+def create_buildings(num_building_per_prison=5):
     prison_ids = select(p.id_prison for p in Prison)[:]
 
     if len(prison_ids) == 0:
         raise Exception("No Prisons in the database. Can't create a Building.")
 
-    additional_buildings_count = int(len(prison_ids) * num_additional_building_per_prison)
+    additional_buildings_count = int(len(prison_ids) * num_building_per_prison)
 
     for prison_id in prison_ids + random.choices(prison_ids, k=additional_buildings_count):
         building_data = {

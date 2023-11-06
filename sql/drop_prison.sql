@@ -15,6 +15,8 @@ DROP TABLE IF EXISTS public."Prison";
 DROP TABLE IF EXISTS public."Doctor";
 DROP TABLE IF EXISTS public."ContactPerson";
 DROP TABLE IF EXISTS public."CellType";
+DROP TABLE IF EXISTS public."Specialization";
+DROP TABLE IF EXISTS public."Rank";
 
 -- Drop types
 DROP TYPE IF EXISTS public.blood_group;

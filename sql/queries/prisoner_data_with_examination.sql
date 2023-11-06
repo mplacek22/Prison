@@ -21,7 +21,7 @@ WHERE
     p."FirstName" = 'Dawid' AND p."LastName" = 'Grygo';
 
 
---
+
 -- -- All prisoners with body weight examination
 -- SELECT
 --     p."IdPrisoner",
