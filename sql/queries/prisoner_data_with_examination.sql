@@ -18,8 +18,7 @@ FROM
 LEFT JOIN
     public."Examination" e ON p."IdPrisoner" = e."IdPrisoner" AND e."ExaminationType" = 'Masa ciała'
 WHERE
-    p."FirstName" = 'Dawid' AND p."LastName" = 'Grygo';
-
+    p."FirstName" = 'Arkadiusz' AND p."LastName" = 'Glaza';
 
 
 -- -- All prisoners with body weight examination
