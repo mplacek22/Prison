@@ -6,9 +6,6 @@ SELECT
     p."LastName",
     p."AdmissionDate",
     p."IdCell",
-    p."IdContactPerson",
-    p."Height",
-    p."BloodGroup",
     p."Sex"
 FROM
     public."Prisoner" p
@@ -17,5 +14,10 @@ LEFT JOIN
 LEFT JOIN
     public."Prison" pr ON p."IdPrison" = pr."IdPrison"
 WHERE
-    s."StayDurationDays" > 1825 -- 5 years in days
-    AND pr."PenitentiaryName" = 'Więzienie nr: 6';
+    pr."PenitentiaryName" = 'Więzienie nr: 6'
+GROUP BY
+    p."IdPrisoner"
+HAVING
+    SUM(s."StayDurationDays") > 1825 -- 5 years in days
+ORDER BY
+    p."IdPrisoner";

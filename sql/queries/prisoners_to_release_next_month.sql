@@ -10,19 +10,19 @@ SELECT
     p."Height",
     p."BloodGroup",
     p."Sex",
-    s."StayDurationDays" AS "StayDurationDays"
+    SUM(s."StayDurationDays") AS "StayDurationDays"
 FROM
     public."Prisoner" p
-JOIN
+INNER JOIN
     public."Sentence" s ON p."IdPrisoner" = s."IdPrisoner"
 LEFT JOIN
-    public."Cell" c ON p."IdCell" = c."IdCell"
-LEFT JOIN
-    public."Block" b ON c."IdBlock" = b."IdBlock"
-LEFT JOIN
-    public."Building" bu ON b."IdBuilding" = bu."IdBuilding"
-LEFT JOIN
-    public."Prison" pr ON bu."IdPrison" = pr."IdPrison"
+    public."Prison" pr ON p."IdPrison" = pr."IdPrison"
 WHERE
-    DATE_TRUNC('month', p."AdmissionDate" + s."StayDurationDays" * INTERVAL '1 day') = DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month')
-    AND pr."PenitentiaryName" = 'Więzienie nr: 6';
+    pr."PenitentiaryName" = 'Więzienie nr: 6'
+GROUP BY
+    p."IdPrisoner"
+HAVING
+    DATE_TRUNC('month', p."AdmissionDate" + SUM(s."StayDurationDays") * INTERVAL '1 day')
+    = DATE_TRUNC('month', CURRENT_DATE + INTERVAL '1 month')
+ORDER BY
+    p."IdPrisoner";
