@@ -1,17 +1,11 @@
 SELECT
-    p."PenitentiaryName" AS "PrisonName",
-    COUNT(pr."IdPrisoner") AS "NumberOfPrisoners"
+  P."PenitentiaryName" AS "PrisonName",
+  COUNT(Pz."IdPrisoner") AS "NumberOfPrisoners"
 FROM
-    public."Prison" p
-LEFT JOIN
-    public."Building" bu ON p."IdPrison" = bu."IdPrison"
-LEFT JOIN
-    public."Block" b ON bu."IdBuilding" = b."IdBuilding"
-LEFT JOIN
-    public."Cell" c ON b."IdBlock" = c."IdBlock"
-LEFT JOIN
-    public."Prisoner" pr ON c."IdCell" = pr."IdCell"
+  public."Prison" P
+  LEFT JOIN public."Prisoner" Pz ON P."IdPrison" = Pz."IdPrison"
 GROUP BY
-    p."PenitentiaryName"
+  P."PenitentiaryName"
 ORDER BY
-    p."PenitentiaryName";
+  P."PenitentiaryName";
+
