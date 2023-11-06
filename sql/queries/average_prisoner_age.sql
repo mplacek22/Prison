@@ -10,14 +10,8 @@ SELECT
 FROM
     public."Prisoner" p
 INNER JOIN
-    public."Cell" c ON p."IdCell" = c."IdCell"
-INNER JOIN
-    public."Block" b ON c."IdBlock" = b."IdBlock"
-INNER JOIN
-    public."Building" bu ON b."IdBuilding" = bu."IdBuilding"
-INNER JOIN
-    public."Prison" pr ON bu."IdPrison" = pr."IdPrison"
+    public."Prison" pr ON p."IdPrison" = pr."IdPrison"
 GROUP BY
-    pr."IdPrison";
+    pr."IdPrison"
 ORDER BY
-    p."PenitentiaryName";
+    pr."PenitentiaryName";
