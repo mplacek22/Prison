@@ -15,7 +15,7 @@ SELECT
 FROM
     public."Prisoner" p
 LEFT JOIN
-    public."Examination" e ON p."IdPrisoner" = e."IdPrisoner" AND e."ExaminationType" = 'Masa ciała'
+    public."Examination" e ON p."IdPrisoner" = e."IdPrisoner"
 LEFT JOIN
     public."Cell" c ON p."IdCell" = c."IdCell"
 LEFT JOIN
@@ -23,22 +23,8 @@ LEFT JOIN
 LEFT JOIN
     public."ContactPerson" cp ON p."IdContactPerson" = cp."IdContactPerson"
 WHERE
-    p."FirstName" = 'Arkadiusz' AND p."LastName" = 'Glaza';
-
-
--- -- All prisoners with body weight examination
--- SELECT
---     p."IdPrisoner",
---     p."PESEL",
---     p."FirstName",
---     p."LastName",
---     p."AdmissionDate",
---     p."Height",
---     p."BloodGroup",
---     p."Sex",
---     e."ExaminationDate" AS "WeightExaminationDate",
---     e."ExaminationResult" AS "WeightResult"
--- FROM
---     public."Prisoner" p
--- JOIN
---     public."Examination" e ON p."IdPrisoner" = e."IdPrisoner" AND e."ExaminationType" = 'Masa ciała';
+    p."FirstName" = 'Arkadiusz' AND p."LastName" = 'Glaza'
+    AND e."ExaminationType" = 'Masa ciała'
+ORDER BY
+    e."ExaminationDate" DESC
+LIMIT 1;
