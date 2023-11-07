@@ -1,12 +1,11 @@
--- DONE
 SELECT
-    p."IdPrisoner",
     p."PESEL",
-    p."FirstName",
-    p."LastName",
+    p."FirstName" AS "PrisonerFirstName",
+    p."LastName" AS "PrisonerLastName",
+    c."CellNr",
+    b."BlockName",
     p."AdmissionDate",
-    p."IdCell",
-    p."IdContactPerson",
+    CONCAT(cp."Name", ' ', cp."Surname") AS "ContactPersonFullName",
     p."Height",
     p."BloodGroup",
     p."Sex",
@@ -17,6 +16,12 @@ FROM
     public."Prisoner" p
 LEFT JOIN
     public."Examination" e ON p."IdPrisoner" = e."IdPrisoner" AND e."ExaminationType" = 'Masa ciała'
+LEFT JOIN
+    public."Cell" c ON p."IdCell" = c."IdCell"
+LEFT JOIN
+    public."Block" b ON c."IdBlock" = b."IdBlock"
+LEFT JOIN
+    public."ContactPerson" cp ON p."IdContactPerson" = cp."IdContactPerson"
 WHERE
     p."FirstName" = 'Arkadiusz' AND p."LastName" = 'Glaza';
 

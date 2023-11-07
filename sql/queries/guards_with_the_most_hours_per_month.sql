@@ -1,11 +1,8 @@
 SELECT
-    g."IdGuard",
     g."PESEL",
     g."Name",
     g."Surname",
-    g."IdRank",
-    g."IdPrison",
-
+    r."Rank",
     DATE_TRUNC('month', d."StartDate") AS Month,
     SUM(EXTRACT(EPOCH FROM (d."EndDate" - d."StartDate")) / 3600) AS WorkHours
 FROM
@@ -15,12 +12,12 @@ JOIN
 JOIN
     public."Duty" d ON gd."IdDuty" = d."IdDuty"
 JOIN
-    public."Prison" p ON g."IdPrison" = p."IdPrison"
+    public."Rank" r ON g."IdRank" = r."IdRank"
 WHERE
-    DATE_TRUNC('month', d."StartDate") = DATE_TRUNC('month', '2023-02-01'::date) -- Change the date to the selected month
-    AND p."PenitentiaryName" = 'Więzienie nr: 6'  -- Rename to the prison name of your choice
+    DATE_TRUNC('month', d."StartDate") = DATE_TRUNC('month', '2023-02-01'::date)
+    AND g."IdPrison" = (SELECT "IdPrison" FROM public."Prison" WHERE "PenitentiaryName" = 'Więzienie nr: 6')
 GROUP BY
-    g."IdGuard", Month
+    g."PESEL", g."Name", g."Surname", r."Rank", Month
 ORDER BY
     WorkHours DESC
 LIMIT 3;

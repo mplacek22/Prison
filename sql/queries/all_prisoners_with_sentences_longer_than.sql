@@ -1,23 +1,26 @@
--- DONE
 SELECT
-    p."IdPrisoner",
     p."PESEL",
     p."FirstName",
     p."LastName",
+    c."CellNr",
+    b."BlockName",
     p."AdmissionDate",
-    p."IdCell",
-    p."Sex"
+    StayDuration.StayDurationDays
 FROM
     public."Prisoner" p
 LEFT JOIN
-    public."Sentence" s ON p."IdPrisoner" = s."IdPrisoner"
-LEFT JOIN
     public."Prison" pr ON p."IdPrison" = pr."IdPrison"
+LEFT JOIN
+    public."Cell" c ON p."IdCell" = c."IdCell"
+LEFT JOIN
+    public."Block" b ON c."IdBlock" = b."IdBlock"
+INNER JOIN (
+    SELECT "IdPrisoner", SUM("StayDurationDays") AS StayDurationDays
+    FROM public."Sentence"
+    GROUP BY "IdPrisoner"
+    HAVING SUM("StayDurationDays") > 1825
+) StayDuration ON p."IdPrisoner" = StayDuration."IdPrisoner"
 WHERE
     pr."PenitentiaryName" = 'Więzienie nr: 6'
-GROUP BY
-    p."IdPrisoner"
-HAVING
-    SUM(s."StayDurationDays") > 1825 -- 5 years in days
 ORDER BY
-    p."IdPrisoner";
+    p."PESEL";
