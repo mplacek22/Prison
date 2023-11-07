@@ -23,6 +23,7 @@ FROM (
         public."Prison" pr ON bu."IdPrison" = pr."IdPrison"
     WHERE
         pr."PenitentiaryName" = 'Więzienie nr: 9'
+		AND DATE_TRUNC('month', d."StartDate") = DATE_TRUNC('month', CURRENT_DATE)
     GROUP BY
         bu."City", bu."Street", bu."BuildingNr", b."BlockName", d."IdDuty"
 )
