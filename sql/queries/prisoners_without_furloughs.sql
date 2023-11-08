@@ -1,4 +1,3 @@
--- DONE
 SELECT
     p."PESEL",
     p."FirstName",
