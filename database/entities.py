@@ -28,6 +28,14 @@ class Specialization(db.Entity):
     doctors = Set("Doctor")
 
 
+# Define the "ExaminationType" entity
+class ExaminationType(db.Entity):
+    _table_ = "ExaminationType"
+    id_examination_type = PrimaryKey(int, column="IdExaminationType", auto=True)
+    examination_type = Required(str, column="ExaminationType")
+    examinations = Set("Examination")
+
+
 # Define the "ContactPerson" entity
 class ContactPerson(db.Entity):
     _table_ = "ContactPerson"
@@ -197,7 +205,7 @@ class Examination(db.Entity):
     id_examination = PrimaryKey(int, column="IdExamination", auto=True)
     id_doctor = Required(Doctor, column="IdDoctor")
     id_prisoner = Required(Prisoner, column="IdPrisoner")
-    examination_type = Required(str, column="ExaminationType")
+    id_examination_type = Required(ExaminationType, column="IdExaminationType")
     examination_date = Required(datetime, column="ExaminationDate")
     examination_result = Required(str, column="ExaminationResult")
 

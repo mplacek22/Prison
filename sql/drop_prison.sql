@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS public."Furlough";
 DROP TABLE IF EXISTS public."Examination";
+DROP TABLE IF EXISTS public."ExaminationType";
 DROP TABLE IF EXISTS public."Visit";
 DROP TABLE IF EXISTS public."Sentence";
 DROP TABLE IF EXISTS public."Prisoner";

@@ -25,6 +25,15 @@ CREATE TABLE public."Specialization" (
 );
 
 
+-- pubic."ExaminationType" definition
+
+CREATE TABLE public."ExaminationType" (
+    "IdExaminationType" SERIAL NOT NULL,
+    "ExaminationType" varchar(50) NOT NULL,
+    CONSTRAINT "ExaminationType_pkey" PRIMARY KEY ("IdExaminationType")
+);
+
+
 -- public."ContactPerson" definition
 
 CREATE TABLE public."ContactPerson" (
@@ -227,12 +236,13 @@ CREATE TABLE public."Examination" (
 	"IdExamination" SERIAL NOT NULL,
 	"IdDoctor" int4 NOT NULL,
 	"IdPrisoner" int4 NOT NULL,
-	"ExaminationType" varchar(50) NOT NULL,
+	"IdExaminationType" int4 NOT NULL,
 	"ExaminationDate" timestamp NOT NULL,
 	"ExaminationResult" varchar(500) NOT NULL,
 	CONSTRAINT "Examination_pkey" PRIMARY KEY ("IdExamination"),
 	CONSTRAINT "FK_Examination.IdDoctor" FOREIGN KEY ("IdDoctor") REFERENCES public."Doctor"("IdDoctor"),
-	CONSTRAINT "FK_Examination.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner")
+	CONSTRAINT "FK_Examination.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner"),
+	CONSTRAINT "FK_Examination.ExaminationType" FOREIGN KEY ("IdExaminationType") REFERENCES public."ExaminationType"("IdExaminationType")
 );
 
 

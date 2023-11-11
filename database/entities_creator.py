@@ -57,7 +57,7 @@ SPECIALIZATIONS = [
     "Hematolog"
 ]
 
-EXAMINATIONS = [
+EXAMINATIONS = dict([
     ("Masa ciała", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
     ("Temperatura ciała", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
     ("Poziom cukru we krwi", lambda: str(round(random.uniform(70, 120), 1))),
@@ -82,7 +82,7 @@ EXAMINATIONS = [
     ("Konsultacja okulisty", lambda: random.choice(["Wynik prawidłowy", "Wymagana dalsza konsultacja"])),
     ("Badanie moczu", lambda: random.choice(["Wynik prawidłowy", "Obecność infekcji", "Inne nieprawidłowości"])),
     ("Test COVID-19", lambda: random.choice(["Wynik negatywny", "Wynik pozytywny", "Wymagane dalsze testy"]))
-]
+])
 
 BLOCK_NAMES = [
     'Izolatki',
@@ -109,6 +109,11 @@ GENDERS = ['F', 'M']
 
 BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
+
+@db_session
+def create_examination_types():
+    for examination_type in EXAMINATIONS:
+        ExaminationType(examination_type=examination_type)
 
 @db_session
 def create_administrative_employees(num_admins_per_prison=15):
@@ -294,12 +299,16 @@ def create_guard_duty(duties_guards):
 def create_examinations(num_examinations_per_prisoner=5):
     prisoner_ids = select(prisoner.id_prisoner for prisoner in Prisoner)[:]
     doctor_ids = select(doctor.id_doctor for doctor in Doctor)[:]
+    examination_types = ExaminationType.select()[:]
 
     if len(prisoner_ids) == 0:
         raise Exception("No prisoners in database.")
 
     if len(doctor_ids) == 0:
         raise Exception("No doctors in database.")
+
+    if len(examination_types) == 0:
+        raise Exception("No examination types in database.")
 
     examinations_count = int(len(prisoner_ids) * num_examinations_per_prisoner)
 
@@ -309,13 +318,14 @@ def create_examinations(num_examinations_per_prisoner=5):
         examination_date = fake.date_time_between(start_date=datetime(year=2020, month=1, day=1),
                                                   end_date=datetime(year=2023, month=6, day=30))
 
-        name, result = random.choice(EXAMINATIONS)
+        examination_type = random.choice(examination_types)
+        result = EXAMINATIONS[examination_type.examination_type]
 
         examination_data = {
             'id_prisoner': prisoner_id,
             'examination_date': examination_date,
             'id_doctor': doctor_id,
-            'examination_type': name,
+            'id_examination_type': examination_type.id_examination_type,
             'examination_result': result()
         }
 
@@ -579,6 +589,7 @@ def populate_db():
     create_cell_types()
     create_specializations()
     create_ranks()
+    create_examination_types()
     create_doctors()
     create_prisons()
     create_administrative_employees()
