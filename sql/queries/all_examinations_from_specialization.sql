@@ -1,9 +1,11 @@
 SELECT
     e."ExaminationDate" AS "ExaminationDate",
-    e."ExaminationType" AS "ExaminationType",
+    et."ExaminationType" AS "ExaminationType",
     e."ExaminationResult" AS "ExaminationResult"
 FROM
     public."Examination" e
+INNER JOIN
+    public."ExaminationType" et ON e."IdExaminationType" = et."IdExaminationType"
 INNER JOIN
     public."Doctor" d ON e."IdDoctor" = d."IdDoctor"
 INNER JOIN

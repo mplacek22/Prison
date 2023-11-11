@@ -10,12 +10,13 @@ SELECT
     p."BloodGroup",
     p."Sex",
     e."ExaminationDate" AS "ExaminationDate",
-    e."ExaminationType",
+    et."ExaminationType",
     e."ExaminationResult" AS "ExaminationResult"
 FROM
     public."Prisoner" p
 LEFT JOIN
     public."Examination" e ON p."IdPrisoner" = e."IdPrisoner"
+INNER JOIN "ExaminationType" et ON e."IdExaminationType" = et."IdExaminationType"
 LEFT JOIN
     public."Cell" c ON p."IdCell" = c."IdCell"
 LEFT JOIN
@@ -24,7 +25,7 @@ LEFT JOIN
     public."ContactPerson" cp ON p."IdContactPerson" = cp."IdContactPerson"
 WHERE
     p."FirstName" = 'Arkadiusz' AND p."LastName" = 'Glaza'
-    AND e."ExaminationType" = 'Masa ciała'
+    AND et."ExaminationType" = 'Masa ciała'
 ORDER BY
     e."ExaminationDate" DESC
 LIMIT 1;
