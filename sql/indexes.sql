@@ -5,7 +5,7 @@ CREATE INDEX idx_specialization ON "Specialization" ("Specialization");
 
 CREATE INDEX idx_doctor_idspecialization ON "Doctor" ("IdSpecialization");
 
--- CREATE INDEX idx_examination_type ON "Examination" ("ExaminationType"); -- będzie poprawiane
+CREATE INDEX idx_examination_type ON "ExaminationType" ("ExaminationType");
 
 CREATE INDEX idx_prisoner_idprison  ON "Prisoner" ("IdPrison");
 CREATE INDEX idx_guard_idprison ON "Guard" ("IdPrison");
