@@ -17,3 +17,5 @@ CREATE INDEX idx_guardduty_idduty ON "GuardDuty" ("IdDuty"); --sprawdzone
 CREATE INDEX idx_examination_idprisoner ON "Examination" ("IdPrisoner"); --sprawdzone
 -- Iza: u mnie sprawdzone klucze obce, są tylko dwa powyższe
 
+CREATE INDEX idx_guard_idrank ON public."Guard" USING hash ("IdRank");
+
