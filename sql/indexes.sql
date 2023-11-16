@@ -18,4 +18,4 @@ CREATE INDEX idx_examination_idprisoner ON "Examination" ("IdPrisoner");
 
 CREATE INDEX idx_guard_idrank ON public."Guard"("IdRank");
 
-CREATE INDEX idx_months ON "Duty" (DATE_TRUNC('month', "StartDate"));
+CREATE INDEX idx_duty_month ON "Duty" (DATE_TRUNC('month', "StartDate"));
