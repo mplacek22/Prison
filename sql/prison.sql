@@ -82,7 +82,7 @@ CREATE TABLE public."AdministrativeEmployee" (
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
 	"IdPrison" int4 NOT NULL,
-	CONSTRAINT "AdministrativeEmployee_pkey" PRIMARY KEY ("IdEmployee"),
+	CONSTRAINT "AdministratCiveEmployee_pkey" PRIMARY KEY ("IdEmployee"),
 	CONSTRAINT "FK_AdministrativeEmployee.IdPrison" FOREIGN KEY ("IdPrison") REFERENCES public."Prison"("IdPrison")
 );
 

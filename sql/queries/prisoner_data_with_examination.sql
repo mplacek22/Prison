@@ -24,7 +24,7 @@ LEFT JOIN
 LEFT JOIN
     public."ContactPerson" cp ON p."IdContactPerson" = cp."IdContactPerson"
 WHERE
-    p."FirstName" = 'Ada' AND p."LastName" = 'Hadała'
+    p."FirstName" = 'Ewa' AND p."LastName" = 'Dukat'
     AND et."ExaminationType" = 'Masa ciała'
 ORDER BY
     e."ExaminationDate" DESC

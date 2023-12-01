@@ -1,6 +1,6 @@
 CREATE TABLE "Stay" (
-    "IdPrisoner" INT4 NOT NULL,
-    "IdCell" INT4 NOT NULL,
+    "IdPrisoner" int4 NOT NULL,
+    "IdCell" int4 NOT NULL,
     "StartDate" TIMESTAMP NOT NULL,
     "EndDate" TIMESTAMP NULL CHECK ("EndDate" >= "StartDate"),
 	CONSTRAINT "FK_Prisoner.IdPrisoner" FOREIGN KEY ("IdPrisoner")
