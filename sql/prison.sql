@@ -212,7 +212,8 @@ CREATE TABLE public."Sentence" (
 	"StayDurationDays" int2 NOT NULL CHECK ("StayDurationDays" > 0),
 	"IdPrisoner" int4 NOT NULL,
 	CONSTRAINT "Sentence_pkey" PRIMARY KEY ("IdSentence"),
-	CONSTRAINT "FK_Sentence.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner")
+	CONSTRAINT "FK_Sentence.IdPrisoner" FOREIGN KEY ("IdPrisoner")
+	    REFERENCES public."Prisoner"("IdPrisoner") ON DELETE CASCADE
 );
 
 
@@ -226,7 +227,8 @@ CREATE TABLE public."Visit" (
 	"Name" varchar(30) NOT NULL,
 	"Surname" varchar(30) NOT NULL,
 	CONSTRAINT "Visit_pkey" PRIMARY KEY ("IdVisit"),
-	CONSTRAINT "FK_Visit.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner")
+	CONSTRAINT "FK_Visit.IdPrisoner" FOREIGN KEY ("IdPrisoner")
+	    REFERENCES public."Prisoner"("IdPrisoner") ON DELETE CASCADE
 );
 
 
@@ -241,8 +243,10 @@ CREATE TABLE public."Examination" (
 	"ExaminationResult" varchar(500) NOT NULL,
 	CONSTRAINT "Examination_pkey" PRIMARY KEY ("IdExamination"),
 	CONSTRAINT "FK_Examination.IdDoctor" FOREIGN KEY ("IdDoctor") REFERENCES public."Doctor"("IdDoctor"),
-	CONSTRAINT "FK_Examination.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner"),
-	CONSTRAINT "FK_Examination.ExaminationType" FOREIGN KEY ("IdExaminationType") REFERENCES public."ExaminationType"("IdExaminationType")
+	CONSTRAINT "FK_Examination.IdPrisoner" FOREIGN KEY ("IdPrisoner")
+	    REFERENCES public."Prisoner"("IdPrisoner") ON DELETE CASCADE,
+	CONSTRAINT "FK_Examination.ExaminationType" FOREIGN KEY ("IdExaminationType")
+	    REFERENCES public."ExaminationType"("IdExaminationType")
 );
 
 
@@ -254,5 +258,6 @@ CREATE TABLE public."Furlough" (
 	"StartDate" timestamp NOT NULL,
 	"EndDate" timestamp NOT NULL CHECK ("EndDate" > "StartDate"),
 	CONSTRAINT "Furlough_pkey" PRIMARY KEY ("IdFurlough"),
-	CONSTRAINT "FK_Furlough.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner")
+	CONSTRAINT "FK_Furlough.IdPrisoner" FOREIGN KEY ("IdPrisoner")
+	    REFERENCES public."Prisoner"("IdPrisoner") ON DELETE CASCADE
 );

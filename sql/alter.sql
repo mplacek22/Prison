@@ -3,7 +3,8 @@ CREATE TABLE "Stay" (
     "IdCell" INT4 NOT NULL,
     "StartDate" TIMESTAMP NOT NULL,
     "EndDate" TIMESTAMP NULL CHECK ("EndDate" >= "StartDate"),
-	CONSTRAINT "FK_Prisoner.IdPrisoner" FOREIGN KEY ("IdPrisoner") REFERENCES public."Prisoner"("IdPrisoner"),
+	CONSTRAINT "FK_Prisoner.IdPrisoner" FOREIGN KEY ("IdPrisoner")
+	    REFERENCES public."Prisoner"("IdPrisoner") ON DELETE CASCADE,
 	CONSTRAINT "FK_Cell.IdCell" FOREIGN KEY ("IdCell") REFERENCES public."Cell"("IdCell")
 );
 
