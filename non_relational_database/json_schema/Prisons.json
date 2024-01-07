@@ -1,0 +1,44 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Prisons",
+    "properties": {
+        "id_prison": {
+            "type": "string"
+        },
+        "prison_name": {
+            "type": "string"
+        },
+        "city": {
+            "type": "string"
+        },
+        "street": {
+            "type": "string"
+        },
+        "building_nr": {
+            "type": "string"
+        },
+        "apartment_nr": {
+            "type": "string"
+        },
+        "buildings": {
+            "type": "object",
+            "properties": {
+                "id_building": {
+                    "type": "number"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "building_nr": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

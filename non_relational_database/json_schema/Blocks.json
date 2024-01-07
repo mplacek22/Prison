@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Blocks",
+    "properties": {
+        "id_block": {
+            "type": "number"
+        },
+        "name": {
+            "type": "string"
+        },
+        "id_building": {
+            "type": "number"
+        },
+        "id_prison": {
+            "type": "number"
+        },
+        "cells": {
+            "type": "object",
+            "properties": {
+                "id_cell": {
+                    "type": "number"
+                },
+                "cell_nr": {
+                    "type": "number"
+                },
+                "cell_type": {
+                    "type": "number"
+                },
+                "cell_capacity": {
+                    "type": "number"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false
+}

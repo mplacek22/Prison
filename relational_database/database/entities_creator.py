@@ -3,7 +3,7 @@ from contextlib import suppress
 from datetime import date, timedelta, time
 import random
 from faker import *
-from database.entities import *
+from relational_database.database.entities import *
 
 Faker.seed(123)
 random.seed(123)
