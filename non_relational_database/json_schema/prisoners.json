@@ -1,0 +1,170 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Prisoners",
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "pesel": {
+            "type": "string",
+            "minLength": 11,
+            "maxLength": 11
+        },
+        "first_name": {
+            "type": "string"
+        },
+        "last_name": {
+            "type": "string"
+        },
+        "admission_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "contact_person": {
+            "type": "object",
+            "properties": {
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "kinship": {
+                    "type": "string"
+                },
+                "phone_nr": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "height": {
+            "type": "number"
+        },
+        "blood_group": {
+            "type": "string"
+        },
+        "sex": {
+            "type": "string"
+        },
+        "id_prison": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "furloughs": {
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "visits": {
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "first_name": {
+                        "type": "string"
+                    },
+                    "last_name": {
+                        "type": "string"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "examinations": {
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id_doctor": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{24}$"
+                    },
+                    "examination_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "examination_result": {
+                        "type": "string"
+                    },
+                    "examination_type": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{24}$"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "sentences": {
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "article": {
+                        "type": "string"
+                    },
+                    "paragraph": {
+                        "type": "integer"
+                    },
+                    "stay_duration_days": {
+                        "type": "integer"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "stays": {
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id_cell": {
+                        "type": "string",
+                        "pattern": "^[a-fA-F0-9]{24}$"
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                },
+                "additionalProperties": false
+            }
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "id",
+        "pesel"
+    ]
+}
