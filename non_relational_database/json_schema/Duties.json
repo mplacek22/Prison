@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Duties",
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "id_block": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "ids_guards": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "pattern": "^[a-fA-F0-9]{24}$"
+            }
+        },
+        "start_date": {
+            "type": "string",
+            "format": "date"
+        },
+        "end_date": {
+            "type": "string",
+            "format": "date"
+        }
+    },
+    "additionalProperties": false
+}

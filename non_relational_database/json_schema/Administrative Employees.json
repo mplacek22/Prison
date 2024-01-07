@@ -1,0 +1,26 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": "Administrative Employees",
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "PESEL": {
+            "type": "string",
+            "pattern": "^[0-9]{11}$"
+        },
+        "name": {
+            "type": "string"
+        },
+        "surname": {
+            "type": "string"
+        },
+        "id_prison": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        }
+    },
+    "additionalProperties": false
+}
