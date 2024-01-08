@@ -22,22 +22,26 @@
             "type": "string"
         },
         "buildings": {
-            "type": "object",
-            "properties": {
-                "id_building": {
-                    "type": "number"
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id_building": {
+                        "type": "number"
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "building_nr": {
+                        "type": "string"
+                    }
                 },
-                "city": {
-                    "type": "string"
-                },
-                "street": {
-                    "type": "string"
-                },
-                "building_nr": {
-                    "type": "string"
-                }
-            },
-            "additionalProperties": false
+                "additionalProperties": false
+            }
         }
     },
     "additionalProperties": false

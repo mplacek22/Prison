@@ -16,22 +16,26 @@
             "type": "number"
         },
         "cells": {
-            "type": "object",
-            "properties": {
-                "id_cell": {
-                    "type": "number"
+            "type": "array",
+            "additionalItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id_cell": {
+                        "type": "number"
+                    },
+                    "cell_nr": {
+                        "type": "number"
+                    },
+                    "cell_type": {
+                        "type": "string"
+                    },
+                    "cell_capacity": {
+                        "type": "number"
+                    }
                 },
-                "cell_nr": {
-                    "type": "number"
-                },
-                "cell_type": {
-                    "type": "number"
-                },
-                "cell_capacity": {
-                    "type": "number"
-                }
-            },
-            "additionalProperties": false
+                "additionalProperties": false
+            }
         }
     },
     "additionalProperties": false

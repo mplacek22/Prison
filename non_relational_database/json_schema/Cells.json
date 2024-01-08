@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "title": "Cells",
+    "properties": {
+        "id_cell": {
+            "type": "number"
+        },
+        "cell_nr": {
+            "type": "number"
+        },
+        "cell_type": {
+            "type": "string"
+        },
+        "cell_capacity": {
+            "type": "number"
+        }
+    },
+    "additionalProperties": false
+}
