@@ -9,8 +9,7 @@
         },
         "pesel": {
             "type": "string",
-            "minLength": 11,
-            "maxLength": 11
+            "pattern": "^[0-9]{11}$"
         },
         "first_name": {
             "type": "string"
@@ -61,11 +60,11 @@
                 "properties": {
                     "start_date": {
                         "type": "string",
-                        "format": "date"
+                        "format": "date-time"
                     },
                     "end_date": {
                         "type": "string",
-                        "format": "date"
+                        "format": "date-time"
                     }
                 },
                 "additionalProperties": false
@@ -79,11 +78,11 @@
                 "properties": {
                     "start_date": {
                         "type": "string",
-                        "format": "date"
+                        "format": "date-time"
                     },
                     "end_date": {
                         "type": "string",
-                        "format": "date"
+                        "format": "date-time"
                     },
                     "first_name": {
                         "type": "string"
@@ -107,14 +106,13 @@
                     },
                     "examination_date": {
                         "type": "string",
-                        "format": "date"
+                        "format": "date-time"
                     },
                     "examination_result": {
                         "type": "string"
                     },
                     "examination_type": {
-                        "type": "string",
-                        "pattern": "^[a-fA-F0-9]{24}$"
+                        "type": "string"
                     }
                 },
                 "additionalProperties": false
@@ -162,9 +160,5 @@
             }
         }
     },
-    "additionalProperties": false,
-    "required": [
-        "id",
-        "pesel"
-    ]
+    "additionalProperties": false
 }
