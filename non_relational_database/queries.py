@@ -5,7 +5,7 @@ def query_1(db):
 
 # prisoner with given name and surname
 def query_2(db, name, surname):
-    return db.Prisoners.find({"name": name, "surname": surname})
+    return db.Prisoners.find({"first_name": name, "last_name": surname})
 
 
 # doctor whose specialization is from given list

@@ -11,10 +11,10 @@
             "type": "string",
             "pattern": "^[0-9]{11}$"
         },
-        "name": {
+        "first_name": {
             "type": "string"
         },
-        "surname": {
+        "last_name": {
             "type": "string"
         },
         "rank": {
