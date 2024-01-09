@@ -4,7 +4,7 @@
     "title": "Cells",
     "properties": {
         "id_cell": {
-            "type": "number"
+            "type": "string"
         },
         "cell_nr": {
             "type": "number"

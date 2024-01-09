@@ -4,7 +4,7 @@
     "title": "Blocks",
     "properties": {
         "id_block": {
-            "type": "number"
+            "type": "string"
         },
         "name": {
             "type": "string"
@@ -14,28 +14,6 @@
         },
         "id_prison": {
             "type": "number"
-        },
-        "cells": {
-            "type": "array",
-            "additionalItems": true,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id_cell": {
-                        "type": "number"
-                    },
-                    "cell_nr": {
-                        "type": "number"
-                    },
-                    "cell_type": {
-                        "type": "string"
-                    },
-                    "cell_capacity": {
-                        "type": "number"
-                    }
-                },
-                "additionalProperties": false
-            }
         }
     },
     "additionalProperties": false
