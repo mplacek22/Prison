@@ -15,6 +15,14 @@
         },
         "cell_capacity": {
             "type": "number"
+        },
+        "id_block": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
+        },
+        "id_prison": {
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
         }
     },
     "additionalProperties": false
