@@ -4,16 +4,19 @@
     "title": "Blocks",
     "properties": {
         "id_block": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
         },
         "name": {
             "type": "string"
         },
         "id_building": {
-            "type": "number"
+            "type": "number",
+            "pattern": "^[a-fA-F0-9]{24}$"
         },
         "id_prison": {
-            "type": "number"
+            "type": "number",
+            "pattern": "^[a-fA-F0-9]{24}$"
         }
     },
     "additionalProperties": false

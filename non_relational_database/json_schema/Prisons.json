@@ -4,7 +4,8 @@
     "title": "Prisons",
     "properties": {
         "id_prison": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
         },
         "prison_name": {
             "type": "string"

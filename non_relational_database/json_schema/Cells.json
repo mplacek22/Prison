@@ -4,7 +4,8 @@
     "title": "Cells",
     "properties": {
         "id_cell": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-fA-F0-9]{24}$"
         },
         "cell_nr": {
             "type": "number"
