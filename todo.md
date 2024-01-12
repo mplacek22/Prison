@@ -1,29 +1,19 @@
 Maja:
-* uzytkownik - done
-* lekarz - done
-* wiezien - done
-* admin - done
-* osoba kontaktowa - done
+* Prisoners
 
 Kuba:
-* wyrok
-* przepustka
-* odiwedziny
-* straznik dyzur
-* dyzur
-* badanie
+* Doctors
+* Examinations
+* Guards
+* Duties
+* Users
+* Employee
 
 Iza:
-* wiezienie - done
-* cela - done
-* blok - done
-* budynek - done
-* straznik - done
-* typy celi - done
+* Prisons
+* Blocks
+* Cells
+* Stays
 
 -------------------------
-* cell_type -> int - done
-* blocks per prison - done
-* cells per block - done
-* zamienić print na raise exception
-* time object
+Czy mongo generuje id?
