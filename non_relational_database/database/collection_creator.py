@@ -1,7 +1,7 @@
-from datetime import date, timedelta, time, datetime
+from datetime import timedelta, datetime
 import random
 from faker import *
-from non_relational_database.database.nrd_main import database_connection
+from non_relational_database.database.database_connection import database_connection
 
 db = database_connection()
 
@@ -25,111 +25,110 @@ BLOCK_NAMES = [
 ]
 
 
-def create_prisons(num_prisons=3):
+def create_prisons_with_buildings(num_prisons=3, num_buildings_per_prison=5):
     probability = 0.8
     prisons_collection = db['prisons']
 
     for _ in range(num_prisons):
         prison_data = {
-            'penitentiary_name': "Więzienie nr: " + str(random.randint(1, 100)),
+            'prison_name': "Więzienie nr: " + str(random.randint(1, 100)),
             'city': fake.city(),
             'street': fake.street_name(),
             'building_nr': fake.building_number(),
             'apartment_nr': str(random.randint(1, 1000)) if random.random() < probability else None
         }
 
+        buildings_data = create_buildings_for_prisons(num_buildings_per_prison)
+
+        prison_data['buildings'] = buildings_data
         prisons_collection.insert_one(prison_data)
 
 
-def create_buildings(num_building_per_prison=5):
-    buildings_collection = db['buildings']
-    prisons_collection = db['prisons']
+def create_buildings_for_prisons(num_buildings_per_prison):
+    buildings_data = []
 
-    prison_ids = [p['_id'] for p in prisons_collection.find()]
-
-    if len(prison_ids) == 0:
-        raise Exception("No Prisons in the database. Can't create a Building.")
-
-    additional_buildings_count = int(len(prison_ids) * num_building_per_prison)
-
-    for prison_id in prison_ids + random.choices(prison_ids, k=additional_buildings_count):
+    for _ in range(num_buildings_per_prison):
         building_data = {
+            'id_building': random.randint(1, 100),
             'city': fake.city(),
             'street': fake.street_address(),
-            'building_nr': str(random.randint(1, 50)),
-            'id_prison': prison_id
+            'building_nr': fake.building_number()
         }
-        buildings_collection.insert_one(building_data)
+        buildings_data.append(building_data)
 
-
-def create_cells(num_cells_per_block=10):
-    cells_collection = db['cells']
-    blocks_collection = db['blocks']
-
-    block_ids = [b['_id'] for b in blocks_collection.find()]
-
-    if len(block_ids) == 0:
-        raise Exception("No Blocks in the database. Can't create a Cell.")
-
-    for i in range(num_cells_per_block):
-        cell_type = random.choice(CELL_TYPES)
-        cell_data = {
-            'cell_nr': i,
-            'cell_type': cell_type,
-            'cell_capacity': random.randint(1, 10) if cell_type != 'Izolacyjna' else 1,
-            'id_block': random.choice(block_ids),
-        }
-
-        cells_collection.insert_one(cell_data)
+    return buildings_data
 
 
 def create_blocks(num_blocks_per_prison=8):
     blocks_collection = db['blocks']
     prisons_collection = db['prisons']
-    buildings_collection = db['buildings']
 
     prisons = list(prisons_collection.find())
 
     if len(prisons) == 0:
         raise Exception("No Prisons in the database. Can't create a Block.")
 
-    building_ids = [b['_id'] for b in buildings_collection.find()]
+    for prison in prisons:
+        prison_id = prison['_id']
+        buildings = prison.get('buildings', [])
 
-    blocks_count = int(len(prisons) * num_blocks_per_prison)
-    for i in range(blocks_count):
-        block_data = {
-            'block_name': random.choice(BLOCK_NAMES),
-            'id_building': random.choice(building_ids),
-        }
+        if not buildings:
+            continue
 
-        blocks_collection.insert_one(block_data)
+        for _ in range(num_blocks_per_prison):
+            building = random.choice(buildings)
 
-
-def create_stays(num_stays_per_prisoner=3):
-    stays_collection = db['stays']
-    prisoners_collection = db['prisoners']
-    cells_collection = db['cells']
-
-    prisoners = list(prisoners_collection.find())
-
-    if len(prisoners) == 0:
-        raise Exception("No Prisoners in the database. Can't create a Stay.")
-
-    cell_ids = [c['_id'] for c in cells_collection.find()]
-
-    for prisoner in prisoners:
-        for _ in range(num_stays_per_prisoner):
-            stay_data = {
-                'id_cell': random.choice(cell_ids),
-                'start_date': (datetime.now() - timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
-                'end_date': (datetime.now() + timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d")
+            block_data = {
+                'block_name': random.choice(BLOCK_NAMES),
+                'id_building': building['id_building'],
+                'id_prison': prison_id,
             }
 
-            stays_collection.insert_one(stay_data)
+            blocks_collection.insert_one(block_data)
 
 
-def insert_collectons():
-    create_prisons()
-    create_buildings()
+def create_cells(num_cells_per_block=10):
+    cells_collection = db['cells']
+    blocks_collection = db['blocks']
+
+    blocks = list(blocks_collection.find())
+
+    if len(blocks) == 0:
+        raise Exception("No Blocks in the database. Can't create a Cell.")
+
+    for block in blocks:
+        block_id = block['_id']
+
+        for i in range(num_cells_per_block):
+            cell_type = random.choice(CELL_TYPES)
+            cell_data = {
+                'cell_nr': i,
+                'cell_type': cell_type,
+                'cell_capacity': random.randint(1, 10) if cell_type != 'Izolacyjna' else 1,
+                'id_block': block_id,
+                'id_prison': block['id_prison'],
+            }
+
+            cells_collection.insert_one(cell_data)
+
+
+def create_stays_for_prisoner(prisoner_id_cell, num_stays_per_prisoner):
+    stays_data = []
+
+    for _ in range(num_stays_per_prisoner):
+        stay_data = {
+            'start_date': (datetime.now() - timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
+            'end_date': (datetime.now() + timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
+            'id_cell': prisoner_id_cell,
+        }
+
+        stays_data.append(stay_data)
+#     funkcja wywoływana z prisonera, coś jak budynki dla więzienia
+
+
+def insert_collections():
+    create_prisons_with_buildings()
     create_blocks()
     create_cells()
+
+    print(db.list_collection_names())
