@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time, date
 import random
 from faker import *
 from non_relational_database.database.database_connection import database_connection
@@ -23,6 +23,22 @@ BLOCK_NAMES = [
     'Chororzy Psychicznie',
     'Pracujący Społecznie'
 ]
+
+KINSHIPS = [
+    "Rodzic",
+    "Dziadek",
+    "Dziecko",
+    "Wnuk",
+    "Rodzeństwo",
+    "Małżonek",
+    "Krewny",
+    "Znajomy",
+    "Nieznajomy",
+]
+
+GENDERS = ['F', 'M']
+
+BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
 
 def create_prisons_with_buildings(num_prisons=3, num_buildings_per_prison=5):
@@ -112,7 +128,8 @@ def create_cells(num_cells_per_block=10):
             cells_collection.insert_one(cell_data)
 
 
-def create_stays_for_prisoner(prisoner_id_cell, num_stays_per_prisoner):
+def create_stays_for_prisoner(prisoner_id_cell,
+                              num_stays_per_prisoner):  # TODO: change to random cell from specified prison
     stays_data = []
 
     for _ in range(num_stays_per_prisoner):
@@ -123,12 +140,136 @@ def create_stays_for_prisoner(prisoner_id_cell, num_stays_per_prisoner):
         }
 
         stays_data.append(stay_data)
+
+
 #     funkcja wywoływana z prisonera, coś jak budynki dla więzienia
+
+
+def create_sentences(sentences_count_weights=(0.5, 0.2, 0.15, 0.1, 0.05)):
+    sentences_count = random.choices(range(1, len(sentences_count_weights) + 1),
+                                     weights=sentences_count_weights)[0]
+    sentences = []
+    for _ in range(sentences_count):
+        duration = random.randint(1, 9200)
+        if duration > 9150:
+            duration = 20000
+        sentences.append({
+            'article': str(random.randint(1, 400)),
+            'paragraph': random.randint(1, 15),
+            'stay_duration_days': duration
+        })
+    return sentences
+
+
+def create_furloughs(num_furloughs_per_prisoner=2):
+    furloughs = []
+    for _ in range(num_furloughs_per_prisoner):
+        start_date = fake.date_between(start_date=date(year=2020, month=1, day=1),
+                                       end_date=date(year=2023, month=6, day=30))
+        start_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                          second=random.randint(0, 59))
+
+        end_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                        second=random.randint(0, 59))
+
+        start_datetime = datetime.combine(start_date, start_time)
+        end_datetime = datetime.combine(start_date + timedelta(days=random.randint(1, 14)), end_time)
+
+        furlough_data = {
+            'start_date': start_datetime,
+            'end_date': end_datetime
+        }
+        furloughs.append(furlough_data)
+    return furloughs
+
+
+def create_visits(num_visits_per_prisoner=3):
+    visits = []
+    for _ in range(num_visits_per_prisoner):
+        start_date = fake.date_between(start_date=date(year=2020, month=1, day=1),
+                                       end_date=date(year=2023, month=6, day=30))
+        start_time = time(hour=random.randint(8, 19), minute=random.randint(0, 59),
+                          second=random.randint(0, 59))
+
+        duration = timedelta(seconds=random.randint(15 * 60, 4 * 60 * 60))
+
+        start_datetime = datetime.combine(start_date, start_time)
+        end_datetime = start_datetime + duration
+
+        visit_data = {
+            'start_date': start_datetime,
+            'end_date': end_datetime,
+            'first_name': fake.first_name(),
+            'last_name': fake.last_name()
+        }
+        visits.append(visit_data)
+    return visits
+
+
+def create_contact_persons(num_contact_persons_per_prisoner=2):
+    contact_persons = []
+    for _ in range(num_contact_persons_per_prisoner):
+        contact_person_data = {
+            'first_name': fake.first_name(),
+            'last_name': fake.last_name(),
+            'kinship': random.choice(KINSHIPS),
+            'phone_nr': fake.phone_number()
+        }
+        contact_persons.append(contact_person_data)
+    return contact_persons
+
+
+def create_contact_person():
+    contact_person_data = {
+        'first_name': fake.first_name(),
+        'last_name': fake.last_name(),
+        'kinship': random.choice(KINSHIPS),
+        'phone_nr': fake.phone_number()
+    }
+    return contact_person_data
+
+
+def create_prisoners(num_prisoners=100):
+    prisoners = []
+
+    if len(db['prisons']) == 0:
+        raise Exception("No prisons in the database. Can't create a Prisoner.")
+
+    for _ in range(num_prisoners):
+        # Generate prisoner data
+        date_of_birth = fake.date_of_birth(minimum_age=18, maximum_age=80)
+        pesel = fake.pesel(date_of_birth=date_of_birth)
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
+        sentences = create_sentences()
+        sentence_time = sum([sentence['stay_duration_days'] for sentence in sentences])
+        admission_date = fake.date_time_between(
+            start_date=max(datetime.combine(date_of_birth + timedelta(days=365 * 17), time(hour=0, minute=0)),
+                           datetime(year=2023, month=6, day=30) - timedelta(days=sentence_time)),
+            end_date=datetime(year=2023, month=6, day=30)
+        )
+        prisoner_data = {
+            'pesel': pesel,
+            'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'last_name': fake.last_name_female() if is_female else fake.last_name_male(),
+            'admission_date': admission_date,
+            'contact_person': create_contact_person(),
+            'height': random.randint(150, 210) if random.random() < 0.8 else None,
+            'blood_group': random.choice(BLOOD_GROUPS) if random.random() < 0.8 else None,
+            'sex': 'F' if is_female else 'M',
+            'id_prison': str(random.choice(db['prisons']).get('_id')),
+            'furloughs': create_furloughs(),
+            'visits': create_visits(),
+            'examinations': [],  # TODO create_examinations()
+            'sentences': create_sentences(),
+            'stays': create_stays_for_prisoner(_, random.randint(1, 5)),
+        }
 
 
 def insert_collections():
     create_prisons_with_buildings()
     create_blocks()
     create_cells()
+    create_prisoners()
 
     print(db.list_collection_names())
