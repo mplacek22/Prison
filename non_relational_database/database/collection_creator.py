@@ -5,9 +5,76 @@ from non_relational_database.database.database_connection import database_connec
 
 db = database_connection()
 
-Faker.seed(123)
-random.seed(123)
 fake = Faker("pl_PL")
+
+RANKS = [
+    "Kapral",
+    "Sierżant",
+    "Starszy Sierżant",
+    "Plutonowy",
+    "Sierżant Sztabowy",
+    "Młodszy Chorąży",
+    "Chorąży",
+    "Chorąży Sztabowy",
+    "Podporucznik",
+    "Porucznik",
+    "Kapitan",
+    "Major",
+    "Podpułkownik",
+    "Pułkownik",
+    "Generał",
+    ""
+]
+
+SPECIALIZATIONS = [
+    "Kardiolog",
+    "Pediatra",
+    "Neurolog",
+    "Dermatolog",
+    "Ortopeda",
+    "Ginekolog",
+    "Gastroenterolog",
+    "Radiolog",
+    "Okulista",
+    "Urolog",
+    "Onkolog",
+    "Pulmonolog",
+    "Endokrynolog",
+    "Nefrolog",
+    "Reumatolog",
+    "Psychiatra",
+    "Anestezjolog",
+    "Chirurg ogólny",
+    "Specjalista chorób zakaźnych",
+    "Hematolog"
+]
+
+EXAMINATIONS = dict([
+    ("Masa ciała", lambda: str(round(random.uniform(40.0, 150.0), 1)) + " kg"),
+    ("Temperatura ciała", lambda: str(round(random.uniform(36.0, 41.0), 1)) + " °C"),
+    ("Poziom cukru we krwi", lambda: str(round(random.uniform(70, 120), 1))),
+    ("Ciśnienie krwi", lambda: str(random.randint(90, 180)) + "/" + str(random.randint(60, 130)) + " mmHg"),
+    ("Poziom cholesterolu", lambda: random.choice(["Wynik prawidłowy", "Podwyższony", "Zbyt niski"])),
+    ("Wynik morfologii krwi", lambda: random.choice(["Normalny", "Anemia", "Leukocytoza"])),
+    ("Poziom wapnia we krwi", lambda: str(round(random.uniform(8.0, 10.5), 2))),
+    ("Poziom potasu we krwi", lambda: str(round(random.uniform(3.5, 5.5), 2))),
+    ("Poziom sodu we krwi", lambda: str(round(random.uniform(135, 145), 2))),
+    ("Wynik testu alergii", lambda: random.choice(["Brak alergii", "Alergia na pyłki", "Alergia na orzechy"])),
+    ("Poziom witaminy D", lambda: str(round(random.uniform(20, 60), 2))),
+    ("Poziom magnezu we krwi", lambda: str(round(random.uniform(1.5, 2.5), 2))),
+    ("Poziom cynku we krwi", lambda: str(round(random.uniform(50, 120), 2))),
+    ("Wynik prób wątrobowych",
+     lambda: random.choice(["Wynik prawidłowy", "Podwyższone", "Podejrzenie uszkodzenia wątroby"])),
+    ("Poziom trójglicerydów", lambda: str(round(random.uniform(50, 200), 1))),
+    ("Poziom kreatyniny we krwi", lambda: str(round(random.uniform(0.5, 1.5), 2))),
+    ("Kolonoskopia", lambda: random.choice(["Wynik negatywny", "Polip wykryty", "Nowotwór wykryty"])),
+    ("Mammografia", lambda: random.choice(["Wynik negatywny", "Znaleziono nieprawidłowość"])),
+    ("USG jamy brzusznej", lambda: random.choice(["Wynik prawidłowy", "Znaleziono nieprawidłowość"])),
+    ("Elektrokardiogram", lambda: random.choice(["Wynik prawidłowy", "Zaburzenia rytmu", "Niedokrwienie serca"])),
+    ("Konsultacja okulisty", lambda: random.choice(["Wynik prawidłowy", "Wymagana dalsza konsultacja"])),
+    ("Badanie moczu", lambda: random.choice(["Wynik prawidłowy", "Obecność infekcji", "Inne nieprawidłowości"])),
+    ("Test COVID-19", lambda: random.choice(["Wynik negatywny", "Wynik pozytywny", "Wymagane dalsze testy"]))
+])
 
 CELL_TYPES = [
     "Męska",
@@ -127,6 +194,162 @@ def create_cells(num_cells_per_block=10):
 
             cells_collection.insert_one(cell_data)
 
+
+def create_doctors(num_doctors=30):
+    for _ in range(num_doctors):
+        pesel = fake.pesel()
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
+        doctor = {
+            'PESEL': pesel,
+            'name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'surname': fake.last_name_female() if is_female else fake.last_name_male(),
+            'specialization': random.choice(SPECIALIZATIONS)
+        }
+        db['doctors'].insert_one(doctor)
+
+
+def create_administrative_employees(num_administrative_employees_per_prison=5):
+    prisons = list(db['prisons'].find())
+    if len(prisons) == 0:
+        raise Exception("No prisons in the database. Can't create an Administrative Employee.")
+
+    for _ in range(num_administrative_employees_per_prison * len(prisons)):
+        prison = random.choice(prisons)
+        pesel = fake.pesel()
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
+        employee = {
+            'PESEL': pesel,
+            'name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'surname': fake.last_name_female() if is_female else fake.last_name_male(),
+            'id_prison': prison['_id']
+        }
+        db['administrative_employees'].insert_one(employee)
+
+
+def create_guards(num_guards_per_prison=30):
+    prisons = list(db['prisons'].find())
+    if len(prisons) == 0:
+        raise Exception("No prisons in the database. Can't create a Guard.")
+
+    for _ in range(num_guards_per_prison * len(prisons)):
+        prison = random.choice(prisons)
+        pesel = fake.pesel()
+        sex_digit = int(pesel[-2])
+        is_female = sex_digit % 2 == 0
+        employee = {
+            'PESEL': pesel,
+            'name': fake.first_name_female() if is_female else fake.first_name_male(),
+            'surname': fake.last_name_female() if is_female else fake.last_name_male(),
+            'rank': random.choice(RANKS),
+            'id_prison': prison['_id']
+        }
+        db['guards'].insert_one(employee)
+
+
+def create_users():
+    doctors = list(db['doctors'].find())
+    guards = list(db['guards'].find())
+    administrative_employees = list(db['administrative_employees'].find())
+    for doctor in doctors:
+        user = {
+            'username': fake.user_name(),
+            'password': fake.password(),
+            'user_id': doctor['_id'],
+            'user_type': 'doctor',
+        }
+        db['users'].insert_one(user)
+
+    for guard in guards:
+        user = {
+            'username': fake.user_name(),
+            'password': fake.password(),
+            'user_id': guard['_id'],
+            'user_type': 'guard',
+        }
+        db['users'].insert_one(user)
+
+    for administrative_employee in administrative_employees:
+        user = {
+            'username': fake.user_name(),
+            'password': fake.password(),
+            'user_id': administrative_employee['_id'],
+            'user_type': 'administrative_employee',
+        }
+        db['users'].insert_one(user)
+
+
+def create_duties(start_datetime=datetime(year=2023, month=1, day=1, hour=6, minute=0, second=0),
+                  end_datetime=datetime(year=2023, month=6, day=30, hour=22, minute=0, second=0)):
+    blocks = list(db['blocks'].find())
+    prisons = list(db['prisons'].find())
+
+    if len(blocks) == 0:
+        raise Exception("No blocks in database")
+
+    if db['guards'].count_documents({}) == 0:
+        raise Exception("No guards in database")
+
+    duration = timedelta(hours=8)
+
+    prisons_guards = {prison['_id']: list(db['guards'].find({'id_prison': prison['_id']})) for prison in prisons}
+    prisons_blocks = {prison['_id']: list(db['blocks'].find({'id_prison': prison['_id']})) for prison in prisons}
+
+    while start_datetime < end_datetime:
+        for prison, p_blocks in prisons_blocks.items():
+            if len(p_blocks) == 0:
+                continue
+
+            duties = []
+            for block in p_blocks:
+                duty = {
+                    'block': block,
+                    'start_date': start_datetime,
+                    'end_date': start_datetime + duration,
+                    'ids_guards': [],
+                }
+
+                duties.append(duty)
+
+            available_guards = prisons_guards[prison]
+            n = len(available_guards)
+
+            if n < len(duties):
+                raise Exception("No guards available for duty")
+
+            for duty in duties:
+                idx = random.randint(0, n - 1)
+                duty['ids_guards'].append(available_guards[idx]['_id'])
+                available_guards[idx], available_guards[n - 1] = available_guards[n - 1], available_guards[idx]
+                n -= 1
+            for i in range(n):
+                duty = random.choice(duties)
+                duty['ids_guards'].append(available_guards[i]['_id'])
+
+            db['duties'].insert_many(duties)
+
+        start_datetime += duration
+
+
+def create_examinations(min_num_examinations_per_prisoner=1, max_num_examinations_per_prisoner=20):
+    doctors = list(db['doctors'].find())
+    examinations = []
+    for _ in range(random.randint(min_num_examinations_per_prisoner, max_num_examinations_per_prisoner)):
+        examination_date = fake.date_time_between(start_date=datetime(year=2020, month=1, day=1),
+                                                  end_date=datetime(year=2023, month=6, day=30))
+
+        examination_type = random.choice(list(EXAMINATIONS.keys()))
+        result = EXAMINATIONS[examination_type]
+
+        examination = {
+            'examination_date': examination_date,
+            'id_doctor': random.choice(doctors)['_id'],
+            'examination_type': examination_type,
+            'examination_result': result()
+        }
+        examinations.append(examination)
+    return examinations
 
 def create_stays_for_prisoner(prisoner_id_cell,
                               num_stays_per_prisoner):  # TODO: change to random cell from specified prison
@@ -248,7 +471,7 @@ def create_prisoners(num_prisoners=100):
             'id_prison': str(random_prison[0].get('_id')),
             'furloughs': create_furloughs(),
             'visits': create_visits(),
-            'examinations': [],  # TODO create_examinations()
+            'examinations': create_examinations(),
             'sentences': create_sentences(),
             'stays': [],
         }
@@ -259,6 +482,11 @@ def insert_collections():
     create_prisons_with_buildings()
     create_blocks()
     create_cells()
+    create_doctors()
+    create_administrative_employees()
+    create_guards()
+    create_users()
+    create_duties()
     create_prisoners()
 
     print(db.list_collection_names())

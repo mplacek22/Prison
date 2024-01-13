@@ -3,7 +3,7 @@
     "type": "object",
     "title": "Prisons",
     "properties": {
-        "id_prison": {
+        "_id": {
             "type": "string",
             "pattern": "^[a-fA-F0-9]{24}$"
         },

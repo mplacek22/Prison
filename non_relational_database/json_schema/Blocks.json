@@ -3,7 +3,7 @@
     "type": "object",
     "title": "Blocks",
     "properties": {
-        "id_block": {
+        "_id": {
             "type": "string",
             "pattern": "^[a-fA-F0-9]{24}$"
         },
