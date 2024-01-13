@@ -206,19 +206,6 @@ def create_visits(num_visits_per_prisoner=3):
     return visits
 
 
-def create_contact_persons(num_contact_persons_per_prisoner=2):
-    contact_persons = []
-    for _ in range(num_contact_persons_per_prisoner):
-        contact_person_data = {
-            'first_name': fake.first_name(),
-            'last_name': fake.last_name(),
-            'kinship': random.choice(KINSHIPS),
-            'phone_nr': fake.phone_number()
-        }
-        contact_persons.append(contact_person_data)
-    return contact_persons
-
-
 def create_contact_person():
     contact_person_data = {
         'first_name': fake.first_name(),
@@ -248,7 +235,7 @@ def create_prisoners(num_prisoners=100):
                            datetime(year=2023, month=6, day=30) - timedelta(days=sentence_time)),
             end_date=datetime(year=2023, month=6, day=30)
         )
-        random_prison = list(prisons.aggregate([{ '$sample': { 'size': 1 } }]))
+        random_prison = list(prisons.aggregate([{'$sample': {'size': 1}}]))
         prisoner_data = {
             'pesel': pesel,
             'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
