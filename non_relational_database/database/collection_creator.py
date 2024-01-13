@@ -351,21 +351,32 @@ def create_examinations(min_num_examinations_per_prisoner=1, max_num_examination
         examinations.append(examination)
     return examinations
 
-def create_stays_for_prisoner(prisoner_id_cell,
-                              num_stays_per_prisoner):  # TODO: change to random cell from specified prison
+
+def create_stays(prison_id, admission_date, num_stays_per_prisoner=2):
+    cells_collection = db['cells']
+    cells_in_prison = list(cells_collection.find({'id_prison': prison_id}))
+
+    if not cells_in_prison:
+        raise Exception("No cells found in the prison.")
+
     stays_data = []
+    current_date = admission_date
 
     for _ in range(num_stays_per_prisoner):
+        cell = random.choice(cells_in_prison)
+        cell_id = cell['_id']
+
+        stay_duration = random.randint(1, 735)
         stay_data = {
-            'start_date': (datetime.now() - timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
-            'end_date': (datetime.now() + timedelta(days=random.randint(1, 365))).strftime("%Y-%m-%d"),
-            'id_cell': prisoner_id_cell,
+            'id_cell': cell_id,
+            'start_date': current_date.strftime("%Y-%m-%d"),
+            'end_date': (current_date + timedelta(days=stay_duration)).strftime("%Y-%m-%d"),
         }
 
         stays_data.append(stay_data)
-
-
-#     funkcja wywoływana z prisonera, coś jak budynki dla więzienia
+        current_date = current_date + timedelta(days=stay_duration + 1)
+    stays_data[-1]['end_date'] = None
+    return stays_data
 
 
 def create_sentences(sentences_count_weights=(0.5, 0.2, 0.15, 0.1, 0.05)):
@@ -441,8 +452,10 @@ def create_contact_person():
 
 def create_prisoners(num_prisoners=100):
     prisoners_collection = db['prisoners']
-    prisons = db['prisons']
-    if prisons.count_documents({}) == 0:
+    prisons_collection = db['prisons']
+    prisons_list = list(prisons_collection.find())
+
+    if not prisons_list:
         raise Exception("No prisons in the database. Can't create a Prisoner.")
 
     for _ in range(num_prisoners):
@@ -458,7 +471,11 @@ def create_prisoners(num_prisoners=100):
                            datetime(year=2023, month=6, day=30) - timedelta(days=sentence_time)),
             end_date=datetime(year=2023, month=6, day=30)
         )
-        random_prison = list(prisons.aggregate([{'$sample': {'size': 1}}]))
+
+        # random_prison = list(prisons.aggregate([{'$sample': {'size': 1}}]))
+        prison = random.choice(prisons_list)
+        prison_id = prison['_id']
+
         prisoner_data = {
             'pesel': pesel,
             'first_name': fake.first_name_female() if is_female else fake.first_name_male(),
@@ -468,12 +485,12 @@ def create_prisoners(num_prisoners=100):
             'height': random.randint(150, 210) if random.random() < 0.8 else None,
             'blood_group': random.choice(BLOOD_GROUPS) if random.random() < 0.8 else None,
             'sex': 'F' if is_female else 'M',
-            'id_prison': str(random_prison[0].get('_id')),
+            'id_prison': prison_id,
             'furloughs': create_furloughs(),
             'visits': create_visits(),
             'examinations': create_examinations(),
             'sentences': create_sentences(),
-            'stays': [],
+            'stays': create_stays(prison_id, admission_date),
         }
         prisoners_collection.insert_one(prisoner_data)
 
