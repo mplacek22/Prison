@@ -375,6 +375,7 @@ def create_stays(prison_id, admission_date, num_stays_per_prisoner=2):
 
         stays_data.append(stay_data)
         current_date = current_date + timedelta(days=stay_duration + 1)
+
     stays_data[-1]['end_date'] = None
     return stays_data
 
