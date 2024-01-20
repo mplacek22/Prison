@@ -43,6 +43,7 @@ prisoners_with_long_sentences = client['Prison']['prisoners'].aggregate([
 ])
 
 if __name__ == '__main__':
+    print(f"Sentence longer that {sentence_duration} days")
     print(specific_prison_name)
     for prisoner in prisoners_with_long_sentences:
         print(prisoner)

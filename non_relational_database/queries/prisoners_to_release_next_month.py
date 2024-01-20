@@ -7,7 +7,7 @@ current_date = datetime.now()
 next_month_start = datetime(current_date.year, current_date.month + 1, 1)
 next_month_end = datetime(current_date.year, current_date.month + 2, 1) - timedelta(days=1)
 
-specific_prison_name = 'Więzienie nr: 76'  # execute all_prisoners_to_release_next_month
+specific_prison_name = 'Więzienie nr: 76'  # execute all_prisoners_to_release_next_month to find prison
 
 prisoners_to_release = client['Prison']['prisoners'].aggregate([
     {
