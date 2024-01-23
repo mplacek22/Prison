@@ -1,5 +1,7 @@
 from datetime import timedelta, datetime, time, date
 import random
+
+from bson import ObjectId
 from faker import *
 from non_relational_database.database.database_connection import database_connection
 
@@ -108,7 +110,7 @@ GENDERS = ['F', 'M']
 BLOOD_GROUPS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', '0+', '0-']
 
 
-def create_prisons_with_buildings(num_prisons=3, num_buildings_per_prison=5):
+def create_prisons_with_buildings(num_prisons=50, num_buildings_per_prison=5):
     probability = 0.8
     prisons_collection = db['prisons']
 
@@ -132,7 +134,7 @@ def create_buildings_for_prisons(num_buildings_per_prison):
 
     for _ in range(num_buildings_per_prison):
         building_data = {
-            'id_building': random.randint(1, 100),
+            '_id': ObjectId(),
             'city': fake.city(),
             'street': fake.street_address(),
             'building_nr': fake.building_number()
@@ -142,7 +144,7 @@ def create_buildings_for_prisons(num_buildings_per_prison):
     return buildings_data
 
 
-def create_blocks(num_blocks_per_prison=8):
+def create_blocks(num_blocks_per_prison=12):
     blocks_collection = db['blocks']
     prisons_collection = db['prisons']
 
@@ -163,14 +165,14 @@ def create_blocks(num_blocks_per_prison=8):
 
             block_data = {
                 'block_name': random.choice(BLOCK_NAMES),
-                'id_building': building['id_building'],
+                'id_building': building['_id'],
                 'id_prison': prison_id,
             }
 
             blocks_collection.insert_one(block_data)
 
 
-def create_cells(num_cells_per_block=10):
+def create_cells(num_cells_per_block=15):
     cells_collection = db['cells']
     blocks_collection = db['blocks']
 
@@ -451,7 +453,7 @@ def create_contact_person():
     return contact_person_data
 
 
-def create_prisoners(num_prisoners=100):
+def create_prisoners(num_prisoners=10000):
     prisoners_collection = db['prisoners']
     prisons_collection = db['prisons']
     prisons_list = list(prisons_collection.find())
